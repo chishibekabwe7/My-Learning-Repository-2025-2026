@@ -1,0 +1,88 @@
+#!/bin/python3
+
+#Problem IX
+#Write a program that will loop multiples of 6 from 72 to 6
+counter = 72
+while counter >= 1:
+    print(f"{counter} is a multiple of 6")
+    counter -= 6
+
+
+#Problem VII
+#Write a while loop to print multiples of 3 from 3 to 30
+counter = 3
+while counter <= 30:
+    print(f"{counter} is a multiple of 3")
+    counter += 3
+
+#Problem VII
+#Write a while loop to print numbers from 10 - 1
+counter = 10
+while counter >= 1:
+    print(counter)
+    counter -= 1
+
+
+#Problem VI
+#Write a while loop that will print numbers from 1-10
+counter = 1
+while counter <= 10:
+    print(counter)
+    counter += 1
+
+
+
+#Problem V
+#Print Even Numbers Less than 10
+counter = 0
+while counter <= 10:
+    print(counter)
+    counter += 2
+
+
+#Problem IV
+#Give the user 3 attempts to enter a correct password (test1234)
+
+password = "test1234"
+attempts = 0
+while attempts < 3:
+    user_input = input("Enter Password:")
+    if user_input == password:
+        print("Access Granted!")
+        break
+    attempts += 1
+else:
+    print("Too many attempts Locked!")
+
+
+
+    
+
+#Problem III
+#Sum numbers until User Enter 0
+total = 0
+while True:
+    num = int(input("Enter a number (0 to stop):"))
+    if num == 0:
+        break
+    total += num
+print(f"The total is {total}")
+
+#Problem II
+#print numbers from 5 down to 1, ten print "Done!"
+counter = 5
+while counter > 0:
+    print(counter)
+    counter -= 1
+print("Done!")
+
+
+#Problem I
+#Write a while loop that prints numbers from 10 to 1, then prints "Blast Off!"
+
+counter = 10
+while counter > 1:
+    print(counter)
+    counter -= 1
+print("Blust off!")
+
