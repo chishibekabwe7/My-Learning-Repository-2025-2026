@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mfuta Kabwe</title>
+    <link href="./Assets/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./Assets/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --link-color: #ff0000;
+            --link-hover-color: #cc0000;
+        }
+
+        body {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        nav a {
+            color: var(--link-color);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--link-hover-color);
+        }
+
+        h1, h2 {
+            color: var(--text-color);
+        }
+
+        .github-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        .github-link:hover {
+            color: var(--link-hover-color);
+        }
+
+        .view-link {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+
+        #typing-header {
+            font-size: 2em;
+            font-weight: bold;
+            height: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        #mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --link-color: #ff6b6b;
+            --link-hover-color: #ff9999;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body class="">
+    <button id="mode-toggle">☀️</button>
+    
+    <header>
+        <div id="typing-header">Software Developer </div>
+    </header>
+
+    <nav>
+        <a href="./index.html">Home</a>
+        <a href="./About Me.html">About</a>
+    
+    </nav>
+
+    <main>
+        <section id="home">
+            <h2>About Me</h2>
+            <p> I'm an Information Systems & Digital Business Graduate | Future IT & Digital Transformation Specialist | Passionate About Networking, Innovation & Business Technology. You can contact me on 0961132425.</p>
+            <p> When I’m not working on projects, I spend most of my free time exploring ways to solve real-world problems through AI automation and intelligent systems. I’m passionate about learning new technology trends, experimenting with emerging tools, and staying up to date with innovations that shape the digital world. I’m naturally curious and love exploring how technology can make everyday life more efficient and meaningful. Whether it’s building small prototypes, reading about digital transformation, or testing new frameworks, I’m always eager to learn and create.</p>
+        </section>
+    </main>
+
+    <footer>
+        © Mfuta Kabwe 2025. 🚀 Mfuta Kabwe
+    </footer>
+
+    <script>
+        // Typing effect
+        const phrases = ["Mfuta Kabwe ","Networking Engineer ", "Data Analyst ", "Data Scientist ", "Database Administrator "];
+        let currentPhraseIndex = 0;
+        let currentCharIndex = 0;
+        const typingHeader = document.getElementById('typing-header');
+
+        function typePhrase() {
+            if (currentCharIndex < phrases[currentPhraseIndex].length) {
+                typingHeader.textContent += phrases[currentPhraseIndex][currentCharIndex];
+                currentCharIndex++;
+                setTimeout(typePhrase, 100);
+            } else {
+                setTimeout(erasePhrase, 2000);
+            }
+        }
+
+        function erasePhrase() {
+            if (currentCharIndex > 0) {
+                typingHeader.textContent = phrases[currentPhraseIndex].substring(0, currentCharIndex - 1);
+                currentCharIndex--;
+                setTimeout(erasePhrase, 50);
+            } else {
+                currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+                setTimeout(typePhrase, 500);
+            }
+        }
+
+        typePhrase();
+
+        // Dark mode toggle
+        const modeToggle = document.getElementById('mode-toggle');
+        const body = document.body;
+
+        modeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            modeToggle.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
+        });
+    </script>
+
+</body></html>
