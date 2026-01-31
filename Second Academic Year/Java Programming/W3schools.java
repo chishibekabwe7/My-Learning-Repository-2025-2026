@@ -65,10 +65,10 @@ public class W3schools {
        //Using Boolean Variables
        boolean isLightOn = false;
        if (isLightOn){
-        System.out.println("The light is On!")
+        System.out.println("The light is On!");
        }
        else{
-        System.out.println("The light is off!")
+        System.out.println("The light is off!");
        }
        
        //Problem 2
@@ -78,7 +78,7 @@ public class W3schools {
         System.out.println("Its Raining Outside");
        }
        else{
-        Sytem.out.println("Its Not Raining Outside")
+        System.out.println("Its Not Raining Outside");
        }
 
        
