@@ -10,11 +10,11 @@ public class W3schools {
         //Java UserInput
         /*Java input is how a program receives input from a user,Before using the Java Userinput you first 
         need to import a class called 'Scanner' Then declare a new scanner object*/
-        Scanner input = new Scanner(System.in); //This means that Scanner can now listen to what the user can type.
-        System.out.println("Enter your name:");
-        //Full Sentence
-        String Name2 = input.nextLine();
-        System.out.println("My Name is " + Name2);
+        // Scanner input = new Scanner(System.in); //This means that Scanner can now listen to what the user can type.
+        // System.out.println("Enter your name:");
+        // //Full Sentence
+        // String Name2 = input.nextLine();
+        // System.out.println("My Name is " + Name2);
 
 
         //Declaring Variables
@@ -98,7 +98,6 @@ public class W3schools {
          }
         }
         
-        
        
         //Java Switch Case 
         /*Instead of writing many if..else statements, you can use the switch statement.
@@ -114,36 +113,35 @@ public class W3schools {
         }
         */
         
-        // Scanner input = new Scanner(System.in);
-	    // int day = input.nextLine();
+        Scanner input = new Scanner(System.in);
+	    int day = input.nextLine();
+        System.out.println("Enter the day of the week:");
+        switch (day) {
+            case 1:
+            System.out.println("Monday");
+            break;
+             case 2:
+            System.out.println("Tuesday");
+            break; 
+	     case 3:
+            System.out.println("Wednesday");
+            break; 
+	     case 4:
+            System.out.println("Thurday");
+            break; 
+	     case 5:
+            System.out.println("Friday");
+            break; 
+	     case 6:
+            System.out.println("Saturday");
+            break; 
+	     case 7:
+            System.out.println("Sunday");
+            break;
+	     default:
+	        System.out.println("Looking forward to tommorow");
 
-        // int day = 4;
-        // switch (day) {
-        // case 1:
-        //        System.out.println("Monday");
-        //     break;
-        // case 2:
-        //        System.out.println("Tuesday");
-        //     break; 
-	    // case 3:
-        //        System.out.println("Wednesday");
-        //     break; 
-	    // case 4:
-        //        System.out.println("Thurday");
-        //     break; 
-	    // case 5:
-        //        System.out.println("Friday");
-        //     break; 
-	    // case 6:
-        //        System.out.println("Saturday");
-        //     break; 
-	    // case 7:
-        //        System.out.println("Sunday");
-        //     break;
-	    //  default:
-	    //        System.out.println("Looking forward to tommorow");
         }
-}
 
         
 
