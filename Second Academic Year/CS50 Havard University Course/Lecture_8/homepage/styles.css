@@ -1,0 +1,549 @@
+/* ============================================================
+   CSS Variables
+   ============================================================ */
+:root {
+    --bg: #0f0f0f;
+    --bg-2: #1a1a1a;
+    --bg-3: #232323;
+    --accent: #e8c96d;
+    --accent-dim: rgba(232, 201, 109, 0.15);
+    --text: #f0ece4;
+    --text-muted: #888;
+    --border: #2e2e2e;
+    --radius: 8px;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Roboto', sans-serif;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+a:hover {
+    opacity: 0.75;
+    text-decoration: none;
+    color: var(--accent);
+}
+
+/* ============================================================
+   Navbar
+   ============================================================ */
+.site-nav {
+    background-color: rgba(15, 15, 15, 0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+}
+
+.brand-name {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--accent) !important;
+    letter-spacing: 2px;
+}
+
+.site-nav .nav-link {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    padding: 0.4rem 1rem !important;
+    transition: color 0.2s;
+}
+
+.site-nav .nav-link:hover,
+.site-nav .nav-link.active {
+    color: var(--accent) !important;
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero {
+    min-height: 88vh;
+    background-color: var(--bg);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.5;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 4rem 1rem;
+}
+
+.hero-eyebrow {
+    font-size: 0.95rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.hero-tagline {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 2.5rem;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-hero {
+    background-color: var(--accent);
+    color: #0f0f0f;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.65rem 1.8rem;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-hero:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    color: #0f0f0f;
+}
+
+.btn-hero-outline {
+    background-color: transparent;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.65rem 1.8rem;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-hero-outline:hover {
+    background-color: var(--accent-dim);
+    transform: translateY(-1px);
+    color: var(--accent);
+}
+
+/* ============================================================
+   Cards section
+   ============================================================ */
+.section-cards {
+    padding: 5rem 0 3rem;
+}
+
+.card-tile {
+    background-color: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, background-color 0.2s;
+    height: 100%;
+}
+
+.card-tile:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    background-color: var(--bg-3);
+}
+
+.card-tile .card-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.card-tile h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.card-tile p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+}
+
+.card-arrow {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+/* force all skill progress bars to the same dark gray colour */
+.progress-bar {
+    background-color: var(--bg-3) !important;
+}
+
+/* ============================================================
+   Quote section
+   ============================================================ */
+.section-quote {
+    padding: 5rem 1rem;
+    background-color: var(--bg-2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.dynamic-greeting {
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+}
+
+.site-quote {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+    color: var(--text);
+    border: none;
+    padding: 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.site-quote cite {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: normal;
+    margin-top: 0.75rem;
+}
+
+/* ============================================================
+   Page header (inner pages)
+   ============================================================ */
+.page-header {
+    padding: 4rem 1rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--bg-2);
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    margin-bottom: 0.3rem;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   Page body
+   ============================================================ */
+.page-body {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.section-heading {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.section-divider {
+    border-color: var(--border);
+    margin: 3rem 0;
+}
+
+/* ============================================================
+   About page
+   ============================================================ */
+.avatar-block {
+    display: flex;
+    justify-content: center;
+}
+
+.avatar-placeholder {
+    width: 180px;
+    height: 180px;
+    background-color: var(--bg-3);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+}
+
+.skill-list {
+    list-style: none;
+    padding: 0;
+}
+
+.skill-list li {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.skill-list li::before {
+    content: "→ ";
+    color: var(--accent);
+}
+
+/* Accordion / Fun facts */
+.fact-card {
+    background-color: var(--bg-2) !important;
+    border: 1px solid var(--border) !important;
+    margin-bottom: 0.5rem !important;
+    border-radius: var(--radius) !important;
+}
+
+.fact-header {
+    background-color: transparent !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+}
+
+.fact-toggle {
+    color: var(--text) !important;
+    font-size: 0.95rem;
+    padding: 1rem 1.25rem;
+}
+
+.fact-toggle:focus {
+    box-shadow: none;
+}
+
+.fact-body {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    padding: 0.5rem 1.25rem 1.25rem;
+}
+
+/* ============================================================
+   Hobbies page
+   ============================================================ */
+.hobby-tabs .nav-link {
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+/* simple styling for the hobbies list on about page */
+.hobby-list li {
+    color: var(--accent);
+    font-weight: 900;
+}
+
+.hobby-tabs .nav-link:hover {
+    color: var(--accent);
+    border-color: transparent;
+}
+
+.hobby-tabs .nav-link.active {
+    background-color: var(--bg-2) !important;
+    border-color: var(--border) var(--border) var(--bg-2) !important;
+    color: var(--accent) !important;
+}
+
+.hobby-tab-content {
+    background-color: var(--bg-2);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 var(--radius) var(--radius) var(--radius);
+    padding: 2.5rem;
+}
+
+.hobby-icon-block {
+    font-size: 6rem;
+    text-align: center;
+    line-height: 1;
+    padding: 2rem;
+    background-color: var(--bg-3);
+    border-radius: var(--radius);
+}
+
+.hobby-detail-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.hobby-detail-list li {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 0.3rem 0;
+}
+
+.hobby-detail-list li::before {
+    content: "· ";
+    color: var(--accent);
+}
+
+.mood-result {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--accent);
+    min-height: 2rem;
+    transition: opacity 0.3s;
+}
+
+/* ============================================================
+   Contact page
+   ============================================================ */
+.contact-input {
+    background-color: var(--bg-2) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+    padding: 0.75rem 1rem !important;
+    transition: border-color 0.2s;
+}
+
+.contact-input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-dim) !important;
+    outline: none;
+}
+
+.contact-input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+}
+
+.contact-success {
+    background-color: rgba(80, 200, 120, 0.1);
+    border: 1px solid rgba(80, 200, 120, 0.4);
+    color: #6fcf97;
+    border-radius: var(--radius);
+}
+
+.contact-error {
+    background-color: rgba(235, 87, 87, 0.1);
+    border: 1px solid rgba(235, 87, 87, 0.4);
+    color: #eb5757;
+    border-radius: var(--radius);
+}
+
+.social-link {
+    display: inline-block;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.social-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+    background-color: var(--bg-2);
+    border-top: 1px solid var(--border);
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* ============================================================
+   Fade-in animations
+   ============================================================ */
+.fade-in {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: fadeUp 0.7s ease forwards;
+}
+
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.3s; }
+.delay-3 { animation-delay: 0.45s; }
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   Responsive tweaks
+   ============================================================ */
+@media (max-width: 576px) {
+    .hero {
+        min-height: 70vh;
+    }
+
+    .hero-name {
+        font-size: 3rem;
+    }
+
+    .btn-hero, .btn-hero-outline {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        margin-right: 0 !important;
+    }
+
+    .hobby-tab-content {
+        padding: 1.5rem;
+    }
+}

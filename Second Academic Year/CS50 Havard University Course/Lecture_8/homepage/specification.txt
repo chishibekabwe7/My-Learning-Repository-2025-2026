@@ -1,0 +1,41 @@
+HTML Tags Used (10 distinct tags beyond html, head, body, title):
+1.  <nav>        — sticky navigation bar with Bootstrap collapse on mobile
+2.  <ul>         — navbar link list and skill/hobby detail lists
+3.  <li>         — individual list items inside nav and content lists
+4.  <header>     — hero section on index.html
+5.  <h1>         — main page heading on every page
+6.  <h2>         — section headings throughout the site
+7.  <h3>         — card titles on the homepage
+8.  <p>          — body text paragraphs
+9.  <footer>     — site-wide footer with copyright text
+10. <blockquote> — pull quote on the homepage
+11. <form>       — contact form on contact.html (bonus)
+12. <textarea>   — multi-line message field on contact form (bonus)
+
+CSS Properties Used (5+ distinct properties):
+1. font-family    — sets Playfair Display for headings and DM Sans for body text
+2. background-color — used throughout for dark-theme backgrounds and card tiles
+3. border         — used for card borders, input fields, and nav separator lines
+4. transform      — translateY used for hover lift effect on cards and buttons
+5. animation      — fadeUp keyframe animation for hero content staggered reveal
+6. letter-spacing — used on eyebrow labels, nav links, and section subtitles (bonus)
+7. transition     — smooth hover transitions on buttons, links, and inputs (bonus)
+
+JavaScript Features:
+- index.html:   Reads the current hour via new Date().getHours() and injects a
+                personalised time-of-day greeting into the page dynamically.
+- hobbies.html: A "mood picker" button selects a random string from an array and
+                fades it in with a CSS opacity transition on each click.
+- contact.html: The contact form validates that all fields are filled before
+                showing a success alert; otherwise it shows an error alert.
+
+Bootstrap Features Used:
+- Responsive navbar with .navbar-expand-md and data-toggle="collapse" for the
+  hamburger menu on mobile devices.
+- .row / .col-md-* grid system for responsive two-column layouts on About and
+  Hobbies pages.
+- Bootstrap Accordion component (data-toggle="collapse", data-parent) for the
+  Fun Facts section on the About page.
+- Bootstrap Tabs component (data-toggle="tab") for the three-tab hobby switcher
+  on the Hobbies page.
+- .alert component for the success/error messages on the Contact form.

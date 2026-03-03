@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <!-- Font Awesome icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-dNmPQawZfXXIy2/0jaBvGZHnR6tgT1DG/5jnWv1ErBg4X3LFqB9yC3h7B3H6nzNxO6Ff3WxQ5jT+olNz4ygp5g==" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        <title>About</title>
+        <!-- ensure progress bars get width after DOM loaded -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.progress-bar').forEach(bar => {
+                    const val = bar.getAttribute('aria-valuenow');
+                    if (val) bar.style.width = val + '%';
+                });
+            });
+        </script>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-md navbar-dark site-nav">
+            <a class="navbar-brand brand-name" href="index.html">CK</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="page-header">
+            <div class="container">
+                <h1 class="page-title">About Me</h1>
+                <p class="page-subtitle">The story so far</p>
+            </div>
+        </div>
+
+        <main class="container page-body">
+            <div class="row align-items-center mb-5">
+                <div class="col-md-5 mb-4 mb-md-0">
+                    <div class="avatar-block">
+                        <div class="avatar-placeholder">CK</div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <h2 class="section-heading">Hi, Kabwe Chishibe</h2>
+                    <p>I’m a passionate BSc in Information Systems student at The Copperbelt University. My friends and colleagues call me a “Digital Alchemist”! a title I earned because of my diverse set of digital skills and my ability to leverage (AI) technology to solve business problems.</p>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            
+
+             
+    <section class="py-5 border-bottom wow fadeInUp" data-wow-delay="0.1s">
+         <h2 class="display-5 mb-5">Skills & Experience</h2>
+         <h3 class="mb-4">Programming Languages & Technologies</h3>
+         <br>
+        <div class="row">
+             <div class="col-md-6">
+                      <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">HTML & CSS</span>
+                                    <span class="font-weight-bold">87%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Bootstrap, Sass</span>
+                                    <span class="font-weight-bold">74%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="74" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">C,C++,JavaScript</span>
+                                    <span class="font-weight-bold">56%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                             <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">MongoDB, MySQL Server</span>
+                                    <span class="font-weight-bold">71%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Numpy, Pandas</span>
+                                    <span class="font-weight-bold">27%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                             <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Adobe Photoshop, Canva Affinity</span>
+                                    <span class="font-weight-bold">78%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Touch Typing 50WPM</span>
+                                    <span class="font-weight-bold">89%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Bash & PowerShell CLI</span>
+                                    <span class="font-weight-bold">89%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">React JS</span>
+                                    <span class="font-weight-bold">40%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-dark" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Node & Express JS</span>
+                                    <span class="font-weight-bold">39%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Python</span>
+                                    <span class="font-weight-bold">59%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="59" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                             <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Firebase, Cloud Firestore</span>
+                                    <span class="font-weight-bold">48%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                             <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">Vim, Neovim TextEditor</span>
+                                    <span class="font-weight-bold">97%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="skill mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <span class="font-weight-bold">SQL</span>
+                                    <span class="font-weight-bold">88%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-dark" role="progressbar" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>        
+         
+        </div>
+    </section>
+  
+
+             <br>
+             <br>
+             <h2 id="hobbies" class="display-5 mb-5">Hobbies & Interests</h2>
+                    <ul class="hobby-list">
+                        <li>Basketball</li>
+                        <li>Learning and Reading</li>
+                        <li>Coding</li>
+                        <li>Table Tennis</li>
+                    </ul>
+            </main>
+
+        <footer class="site-footer text-center">
+            <p>&copy; 2025 Alex Rivera &mdash; Built with HTML, CSS &amp; JavaScript</p>
+        </footer>
+    </body>
+</html>
