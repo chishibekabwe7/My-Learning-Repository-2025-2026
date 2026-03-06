@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Your tasks</h2>
+
+{% if tasks|length == 0 %}
+  <p>No tasks yet. <a href="{{ url_for('add') }}">Add one</a>.</p>
+{% else %}
+  <table class="tasks">
+    <thead>
+      <tr><th>Description</th><th>Hours</th><th>Created</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for t in tasks %}
+      <tr>
+        <td>{{ t['description'] }}</td>
+        <td>{{ "%.2f"|format(t['hours']) }}</td>
+        <td>{{ t['created_at'][:19].replace('T',' ') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('delete') }}" onsubmit="return confirm('Delete this task?');">
+            <input type="hidden" name="id" value="{{ t['id'] }}">
+            <button type="submit" class="btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <strong>Total hours:</strong> {{ "%.2f"|format(total_hours) }}
+  </div>
+{% endif %}
+
+{% endblock %}
