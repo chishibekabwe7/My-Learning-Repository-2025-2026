@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -54,28 +54,28 @@ export default function AdminDashboard() {
   const TABS = [['overview','📊 Overview'],['bookings','📦 Bookings'],['transactions','💰 Transactions'],['users','👥 Users']];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0e0e0e', color: 'white' }}>
+    <div style={{ minHeight: '100vh', background: '#1D2429', color: 'white' }}>
       {/* Header */}
-      <header style={{ background: '#1a1a1a', borderBottom: '3px solid #d4af37', padding: '18px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ background: '#1D2429', borderBottom: '3px solid #30BDEC', padding: '18px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Roboto' }}>
         <div>
-          <h1 style={{ color: '#d4af37', fontSize: 20, fontWeight: 800, letterSpacing: 3 }}>ELITRACK</h1>
+          <h1 style={{ color: '#30BDEC', fontSize: 20, fontWeight: 800, letterSpacing: 3, fontFamily: 'Roboto' }}>ELITRACK</h1>
           <p style={{ color: '#555', fontSize: 9, letterSpacing: 2 }}>ADMIN CONTROL CENTER</p>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ fontSize: 11, color: '#888' }}>{user?.full_name || user?.email}</span>
-          <span style={{ background: '#d4af37', color: '#0e0e0e', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700 }}>ADMIN</span>
+          <span style={{ background: '#30BDEC', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>ADMIN</span>
           <button className="btn btn-dark btn-sm" onClick={logout}>Logout</button>
         </div>
       </header>
 
       {/* Tabs */}
-      <div style={{ background: '#131313', padding: '0 28px', display: 'flex', gap: 4, borderBottom: '1px solid #222' }}>
+      <div style={{ background: '#131313', padding: '0 28px', display: 'flex', gap: 4, borderBottom: '1px solid #222', fontFamily: 'Roboto' }}>
         {TABS.map(([k,v]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 12, fontFamily: 'Syne', fontWeight: 700,
-            color: tab === k ? '#d4af37' : '#444',
-            borderBottom: tab === k ? '2px solid #d4af37' : '2px solid transparent', letterSpacing: 1
+            fontSize: 12, fontFamily: 'Roboto', fontWeight: 700,
+            color: tab === k ? '#30BDEC' : '#444',
+            borderBottom: tab === k ? '2px solid #30BDEC' : '2px solid transparent', letterSpacing: 1
           }}>{v}</button>
         ))}
       </div>
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         {/* Overview */}
         {tab === 'overview' && (
           <div className="fade-up">
-            <h2 style={{ color: '#d4af37', marginBottom: 24, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase' }}>Dashboard Overview</h2>
+            <h2 style={{ color: '#30BDEC', marginBottom: 24, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>Dashboard Overview</h2>
             {stats ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 32 }}>
                 {[
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
               </div>
             ) : <div className="spinner" />}
 
-            <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', padding: 20 }}>
+              <div style={{ background: '#1D2429', borderRadius: 12, border: '1px solid #333', padding: 20, fontFamily: 'Roboto' }}>
               <p className="section-label">Quick Actions</p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <button className="btn btn-gold btn-sm" onClick={() => setTab('bookings')}>Manage Bookings</button>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         {/* Bookings */}
         {tab === 'bookings' && (
           <div className="fade-up">
-            <h2 style={{ color: '#d4af37', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase' }}>All Bookings</h2>
+            <h2 style={{ color: '#30BDEC', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>All Bookings</h2>
             {loading ? <div className="spinner" /> : (
               <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
                 <div className="table-wrap">
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
                     <tbody>
                       {bookings.map(b => (
                         <tr key={b.id} style={{ borderBottom: '1px solid #222' }}>
-                          <td className="mono" style={{ color: '#d4af37', fontSize: 11 }}>{b.booking_ref}</td>
+                          <td className="mono" style={{ color: '#30BDEC', fontSize: 11 }}>{b.booking_ref}</td>
                           <td>
                             <div style={{ fontSize: 12, fontWeight: 700 }}>{b.full_name || '—'}</div>
                             <div style={{ fontSize: 10, color: '#666' }}>{b.email}</div>
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
                           <td style={{ textTransform: 'capitalize', fontSize: 11 }}>{b.hub}</td>
                           <td style={{ textAlign: 'center' }}>{b.units}</td>
                           <td style={{ textAlign: 'center' }}>{b.days}</td>
-                          <td className="mono" style={{ fontWeight: 700, color: '#d4af37' }}>K{parseInt(b.total_amount).toLocaleString()}</td>
+                          <td className="mono" style={{ fontWeight: 700, color: '#30BDEC' }}>K{parseInt(b.total_amount).toLocaleString()}</td>
                           <td><span className={`badge badge-${b.status}`}>{b.status}</span></td>
                           <td>
                             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
         {/* Transactions */}
         {tab === 'transactions' && (
           <div className="fade-up">
-            <h2 style={{ color: '#d4af37', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase' }}>All Transactions</h2>
+            <h2 style={{ color: '#30BDEC', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>All Transactions</h2>
             {loading ? <div className="spinner" /> : (
               <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
                 <div className="table-wrap">
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
                     <tbody>
                       {transactions.map(t => (
                         <tr key={t.id} style={{ borderBottom: '1px solid #222' }}>
-                          <td className="mono" style={{ color: '#d4af37', fontSize: 11 }}>{t.booking_ref}</td>
+                          <td className="mono" style={{ color: '#30BDEC', fontSize: 11 }}>{t.booking_ref}</td>
                           <td style={{ fontSize: 12 }}>{t.full_name || t.email}</td>
                           <td style={{ fontSize: 11 }}>{t.truck_type}</td>
                           <td className="mono" style={{ fontWeight: 700, color: '#27ae60' }}>K{parseInt(t.amount).toLocaleString()}</td>
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
         {/* Users */}
         {tab === 'users' && (
           <div className="fade-up">
-            <h2 style={{ color: '#d4af37', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase' }}>Registered Clients</h2>
+            <h2 style={{ color: '#30BDEC', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>Registered Clients</h2>
             {loading ? <div className="spinner" /> : (
               <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
                 <div className="table-wrap">
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
                           <td style={{ fontSize: 12 }}>{u.email}</td>
                           <td className="mono" style={{ fontSize: 11 }}>{u.phone}</td>
                           <td style={{ fontSize: 12 }}>{u.company || '—'}</td>
-                          <td><span style={{ background: u.role === 'admin' ? '#d4af37' : '#333', color: u.role === 'admin' ? '#000' : '#888', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700 }}>{u.role.toUpperCase()}</span></td>
+                          <td><span style={{ background: u.role === 'admin' ? '#30BDEC' : '#333', color: u.role === 'admin' ? 'white' : '#888', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>{u.role.toUpperCase()}</span></td>
                           <td style={{ fontSize: 11, color: '#666' }}>{new Date(u.created_at).toLocaleDateString()}</td>
                         </tr>
                       ))}

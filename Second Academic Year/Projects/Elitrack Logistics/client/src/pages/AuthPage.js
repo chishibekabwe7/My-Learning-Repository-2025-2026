@@ -7,6 +7,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ email: '', password: '', phone: '', full_name: '', company: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -42,30 +43,43 @@ export default function AuthPage() {
 
   const submit = async e => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError('');
+    setSuccess('');
+    setLoading(true);
     try {
-      const user = mode === 'login'
-        ? await login(form.email, form.password)
-        : await register(form);
-      navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+      if (mode === 'login') {
+        const user = await login(form.email, form.password);
+        navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+      } else {
+        // For register, just create the account without logging in
+        await register(form);
+        setSuccess('✅ Account created successfully! Please log in with your credentials.');
+        setForm({ email: '', password: '', phone: '', full_name: '', company: '' });
+        setTimeout(() => {
+          setMode('login');
+          setSuccess('');
+        }, 2000);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0e0e0e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ minHeight: '100vh', background: '#1D2429', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ width: '100%', maxWidth: 380 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1 style={{ color: '#d4af37', fontSize: 32, fontWeight: 800, letterSpacing: 4 }}>ELITRACK</h1>
+          <h1 style={{ color: '#30BDEC', fontSize: 32, fontWeight: 800, letterSpacing: 4, fontFamily: 'Roboto' }}>ELITRACK</h1>
           <p style={{ color: '#666', fontSize: 11, letterSpacing: 2, marginTop: 6 }}>FLEET MULTI-ASSET PORTAL</p>
         </div>
 
-        <div style={{ background: '#1a1a1a', borderRadius: 16, border: '1px solid #d4af37', padding: 32 }}>
+        <div style={{ background: '#1D2429', borderRadius: 16, border: '1px solid #30BDEC', padding: 32 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
             {['login','register'].map(m => (
               <button key={m} onClick={() => setMode(m)} className="btn"
-                style={{ flex: 1, background: mode === m ? '#d4af37' : 'transparent', color: mode === m ? '#0e0e0e' : '#666', border: '1px solid #333', fontSize: 11 }}>
+                style={{ flex: 1, background: mode === m ? '#30BDEC' : 'transparent', color: mode === m ? 'white' : '#666', border: '1px solid #333', fontSize: 11, fontFamily: 'Roboto' }}>
                 {m === 'login' ? 'Sign In' : 'Register'}
               </button>
             ))}
@@ -90,31 +104,32 @@ export default function AuthPage() {
                 <div className="form-group">
                   <label style={{ color: '#888' }}>Full Name</label>
                   <input name="full_name" placeholder="Your full name" value={form.full_name} onChange={handle}
-                    style={{ background: '#242424', borderColor: '#333', color: 'white' }} />
+                    style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
                 </div>
                 <div className="form-group">
                   <label style={{ color: '#888' }}>Company / Mine</label>
                   <input name="company" placeholder="e.g. Kansanshi Mining" value={form.company} onChange={handle}
-                    style={{ background: '#242424', borderColor: '#333', color: 'white' }} />
+                    style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
                 </div>
                 <div className="form-group">
                   <label style={{ color: '#888' }}>Phone</label>
                   <input name="phone" placeholder="0977 000 000" value={form.phone} onChange={handle} required
-                    style={{ background: '#242424', borderColor: '#333', color: 'white' }} />
+                    style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
                 </div>
               </>
             )}
             <div className="form-group">
               <label style={{ color: '#888' }}>Email</label>
               <input name="email" type="email" placeholder="you@company.zm" value={form.email} onChange={handle} required
-                style={{ background: '#242424', borderColor: '#333', color: 'white' }} />
+                style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
             </div>
             <div className="form-group">
               <label style={{ color: '#888' }}>Password</label>
               <input name="password" type="password" placeholder="••••••••" value={form.password} onChange={handle} required
-                style={{ background: '#242424', borderColor: '#333', color: 'white' }} />
+                style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
             </div>
 
+            {success && <p style={{ color: '#4ade80', fontSize: 12, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{success}</p>}
             {error && <p style={{ color: '#e74c3c', fontSize: 12, marginBottom: 16, textAlign: 'center' }}>{error}</p>}
 
             <button type="submit" className="btn btn-gold btn-full" disabled={loading}>

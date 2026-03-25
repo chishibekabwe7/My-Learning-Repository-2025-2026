@@ -15,8 +15,7 @@ router.post('/register', async (req, res) => {
       'INSERT INTO users (email, phone, password_hash, full_name, company) VALUES (?,?,?,?,?)',
       [email, phone, hash, full_name || '', company || '']
     );
-    const token = jwt.sign({ id: result.insertId, email, role: 'client' }, SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: result.insertId, email, role: 'client', full_name, company } });
+    res.json({ success: true, message: 'Account created successfully. Please log in.' });
   } catch (e) {
     if (e.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Email already registered' });
     res.status(500).json({ error: e.message });

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useAuth } from '../context/AuthContext';
+import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 // Fix leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -117,11 +117,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f4f0' }}>
+    <div style={{ minHeight: '100vh', background: '#1D2429' }}>
       {/* Header */}
-      <header style={{ background: '#0e0e0e', borderBottom: '3px solid #d4af37', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ background: '#1D2429', borderBottom: '3px solid #30BDEC', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Roboto' }}>
         <div>
-          <h1 style={{ color: '#d4af37', fontSize: 22, fontWeight: 800, letterSpacing: 3 }}>ELITRACK LOGISTICS</h1>
+          <h1 style={{ color: '#30BDEC', fontSize: 22, fontWeight: 800, letterSpacing: 3, fontFamily: 'Roboto' }}>ELITRACK LOGISTICS</h1>
           <p style={{ color: '#666', fontSize: 10, letterSpacing: 2 }}>CLIENT PORTAL</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -131,11 +131,11 @@ export default function Dashboard() {
       </header>
 
       {/* Tabs */}
-      <div style={{ background: '#1a1a1a', padding: '0 24px', display: 'flex', gap: 4 }}>
+      <div style={{ background: '#1D2429', padding: '0 24px', display: 'flex', gap: 4, fontFamily: 'Roboto' }}>
         {[['book','🚛 Book Convoy'],['track','📡 Live Tracking'],['bookings','📋 My Bookings']].map(([k,v]) => (
           <button key={k} onClick={() => setTab(k)} style={{
-            padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'Syne', fontWeight: 700,
-            color: tab === k ? '#d4af37' : '#555', borderBottom: tab === k ? '2px solid #d4af37' : '2px solid transparent', letterSpacing: 1
+            padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'Roboto', fontWeight: 700,
+            color: tab === k ? '#30BDEC' : '#555', borderBottom: tab === k ? '2px solid #30BDEC' : '2px solid transparent', letterSpacing: 1
           }}>{v}</button>
         ))}
       </div>
@@ -180,9 +180,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div style={{ background: '#0e0e0e', borderRadius: 16, border: '1px solid #d4af37', padding: '24px', textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ background: '#1D2429', borderRadius: 16, border: '1px solid #30BDEC', padding: '24px', textAlign: 'center', marginBottom: 16, fontFamily: 'Roboto' }}>
               <p style={{ color: '#888', fontSize: 10, letterSpacing: 2, marginBottom: 8 }}>TOTAL LOGISTICS VALUE</p>
-              <p style={{ color: '#d4af37', fontSize: 36, fontWeight: 800 }}>K{total.toLocaleString()}</p>
+              <p style={{ color: '#30BDEC', fontSize: 36, fontWeight: 800 }}>K{total.toLocaleString()}</p>
               <button className="btn btn-gold btn-full" style={{ marginTop: 20 }} onClick={deploy} disabled={submitting}>
                 {submitting ? 'Deploying...' : '🚀 Deploy Convoy & Link Cams'}
               </button>
