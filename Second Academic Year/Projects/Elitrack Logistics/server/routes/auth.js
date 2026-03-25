@@ -41,33 +41,41 @@ router.post('/login', async (req, res) => {
 // Google OAuth
 router.post('/google', async (req, res) => {
   const { token } = req.body;
+  console.log('🔐 Google OAuth request received');
   try {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    console.log('📋 Verifying token with Google...');
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
     });
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
+    console.log('✅ Token verified. Email:', email);
 
     // Check if user exists, create if not
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     let user;
 
     if (rows.length === 0) {
+      console.log('📝 Creating new user...');
       const [result] = await pool.query(
-        'INSERT INTO users (email, full_name, picture, password_hash) VALUES (?,?,?,?)',
-        [email, name || '', picture || '', await bcrypt.hash('oauth_user', 10)]
+        'INSERT INTO users (email, full_name, phone, password_hash) VALUES (?,?,?,?)',
+        [email, name || '', 'N/A', await bcrypt.hash('oauth_user', 10)]
       );
-      user = { id: result.insertId, email, full_name: name, role: 'client', picture };
+      user = { id: result.insertId, email, full_name: name, role: 'client' };
+      console.log('✅ New user created:', user.id);
     } else {
       user = rows[0];
+      console.log('✅ Existing user found:', user.id);
     }
 
     const jwtToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
+    console.log('🎫 JWT token generated');
     res.json({ token: jwtToken, user: { id: user.id, email: user.email, role: user.role, full_name: user.full_name, company: user.company } });
   } catch (err) {
-    res.status(401).json({ error: 'Google authentication failed' });
+    console.error('❌ Google Auth Error:', err.message);
+    res.status(401).json({ error: 'Google authentication failed: ' + err.message });
   }
 });
 

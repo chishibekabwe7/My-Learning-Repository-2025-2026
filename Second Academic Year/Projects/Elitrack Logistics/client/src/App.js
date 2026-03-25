@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+console.log('🔐 Google Client ID loaded:', GOOGLE_CLIENT_ID ? '✅ Loaded' : '❌ Missing - Check .env file');
+
 export default function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>

@@ -15,29 +15,45 @@ export default function AuthPage() {
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleGoogleSuccess = async (credentialResponse) => {
+    console.log('✅ Google Login Success - Token received');
     setError('');
     setLoading(true);
     try {
       // Send the token to your backend
+      console.log('📤 Sending token to backend...');
       const response = await fetch('http://localhost:5000/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
       
-      // Store token and redirect
-      localStorage.setItem('token', data.token);
+      const data = await response.json();
+      console.log('📥 Backend response:', { status: response.status, data });
+      
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`);
+      }
+      
+      if (!data.token || !data.user) {
+        console.error('❌ Invalid response structure:', data);
+        throw new Error('Invalid response from server');
+      }
+      
+      // Store token and redirect using same keys as AuthContext
+      console.log('✅ Token stored, redirecting...');
+      localStorage.setItem('tl_token', data.token);
+      localStorage.setItem('tl_user', JSON.stringify(data.user));
       navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
-      setError(err.message || 'Google login failed');
+      console.error('❌ Google login error:', err);
+      setError(err.message || 'Google login failed. Check browser console for details.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleError = () => {
+  const handleGoogleError = (error) => {
+    console.error('❌ Google Authentication Error:', error);
     setError('Google login failed. Please try again.');
   };
 
