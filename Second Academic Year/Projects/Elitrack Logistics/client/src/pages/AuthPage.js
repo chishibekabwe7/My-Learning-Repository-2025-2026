@@ -1,3 +1,4 @@
+import { GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +12,33 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError('');
+    setLoading(true);
+    try {
+      // Send the token to your backend
+      const response = await fetch('http://localhost:5000/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      
+      // Store token and redirect
+      localStorage.setItem('token', data.token);
+      navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
+    } catch (err) {
+      setError(err.message || 'Google login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google login failed. Please try again.');
+  };
 
   const submit = async e => {
     e.preventDefault();
@@ -41,6 +69,19 @@ export default function AuthPage() {
                 {m === 'login' ? 'Sign In' : 'Register'}
               </button>
             ))}
+          </div>
+
+          {mode === 'login' && (
+            <div style={{ marginBottom: 24 }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+              />
+            </div>
+          )}
+
+          <div style={{ textAlign: 'center', marginBottom: 20, color: '#555', fontSize: 12 }}>
+            {mode === 'login' && 'Or continue with email'}
           </div>
 
           <form onSubmit={submit}>

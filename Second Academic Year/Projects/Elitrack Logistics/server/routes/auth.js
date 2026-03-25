@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const { pool } = require('../config/db');
 const SECRET = process.env.JWT_SECRET || 'elitrack_secret_2026';
 
@@ -35,6 +36,39 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: { id: user.id, email: user.email, role: user.role, full_name: user.full_name, company: user.company } });
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// Google OAuth
+router.post('/google', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    // Check if user exists, create if not
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    let user;
+
+    if (rows.length === 0) {
+      const [result] = await pool.query(
+        'INSERT INTO users (email, full_name, picture, password_hash) VALUES (?,?,?,?)',
+        [email, name || '', picture || '', await bcrypt.hash('oauth_user', 10)]
+      );
+      user = { id: result.insertId, email, full_name: name, role: 'client', picture };
+    } else {
+      user = rows[0];
+    }
+
+    const jwtToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
+    res.json({ token: jwtToken, user: { id: user.id, email: user.email, role: user.role, full_name: user.full_name, company: user.company } });
+  } catch (err) {
+    res.status(401).json({ error: 'Google authentication failed' });
   }
 });
 
