@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET = process.env.JWT_SECRET || 'terralink_secret_2026';
+const SECRET = process.env.JWT_SECRET || 'elitrack_secret_2026';
 
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];

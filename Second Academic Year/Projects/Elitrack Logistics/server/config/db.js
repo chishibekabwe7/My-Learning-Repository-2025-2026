@@ -11,9 +11,10 @@ const pool = mysql.createPool({
 
 const initDB = async () => {
   const conn = await pool.getConnection();
+  const dbName = process.env.DB_NAME || 'terralink_db';
   try {
-    await conn.query(`CREATE DATABASE IF NOT EXISTS terralink_db`);
-    await conn.query(`USE terralink_db`);
+    await conn.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
+    await conn.query(`USE ${dbName}`);
 
     await conn.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -84,7 +85,7 @@ const initDB = async () => {
     const hash = await bcrypt.hash('admin123', 10);
     await conn.query(`
       INSERT IGNORE INTO users (email, phone, password_hash, role, full_name, company)
-      VALUES ('admin@terralink.zm', '0973930287', ?, 'admin', 'Elijah Mufwambi', 'Terralink')
+      VALUES ('admin@elitrack.zm', '0973930287', ?, 'admin', 'Elijah Mufwambi', 'Elitrack Logistics')
     `, [hash]);
 
     console.log('✅ Database initialized');

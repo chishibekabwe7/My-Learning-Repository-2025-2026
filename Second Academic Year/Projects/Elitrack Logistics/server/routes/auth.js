@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../config/db');
-const SECRET = process.env.JWT_SECRET || 'terralink_secret_2026';
+const SECRET = process.env.JWT_SECRET || 'elitrack_secret_2026';
 
 // Register
 router.post('/register', async (req, res) => {

@@ -1,9 +1,9 @@
-# Terralink.fleets — Full Stack Setup Guide
+# Elitrack Logistics — Full Stack Setup Guide
 
 ## Project Architecture
 
 ```
-terralink/
+elitrack-logistics/
 ├── package.json            ← root (runs both servers)
 ├── server/                 ← Express + MySQL API
 │   ├── index.js
@@ -55,7 +55,7 @@ mysql --version
 ## Step 2 — Open in VS Code
 
 1. Open VS Code
-2. Go to **File → Open Folder** and select the `terralink` folder
+2. Go to **File → Open Folder** and select the `elitrack-logistics` folder
 3. For the best experience, open the workspace file instead:
    - **File → Open Workspace from File** → select `terralink.code-workspace`
 4. Open the integrated terminal: **Terminal → New Terminal** (or `Ctrl + `` ` ``)
@@ -69,9 +69,9 @@ mysql --version
 Open MySQL Workbench or your terminal and run:
 
 ```sql
-CREATE DATABASE terralink_db;
-CREATE USER 'terralink_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON terralink_db.* TO 'terralink_user'@'localhost';
+CREATE DATABASE elitrack_db;
+CREATE USER 'elitrack_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON elitrack_db.* TO 'elitrack_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -88,10 +88,10 @@ Open `server/.env` and fill in your MySQL details:
 ```env
 PORT=5000
 DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_mysql_root_password_here
-DB_NAME=terralink_db
-JWT_SECRET=terralink_ultra_secret_2026
+DB_USER=elitrack_user
+DB_PASSWORD=your_mysql_password_here
+DB_NAME=elitrack_db
+JWT_SECRET=elitrack_ultra_secret_2026
 ```
 
 > The database tables are created **automatically** when the server starts — you do not need to run any SQL files manually.
@@ -100,7 +100,7 @@ JWT_SECRET=terralink_ultra_secret_2026
 
 ## Step 5 — Install All Dependencies
 
-In the VS Code terminal, from the `terralink` root folder:
+In the VS Code terminal, from the `elitrack-logistics` root folder:
 
 ```bash
 # Install root dependencies (concurrently)
@@ -127,7 +127,7 @@ npm run install:all
 
 ## Step 6 — Run the App
 
-From the `terralink` root folder, run both servers simultaneously:
+From the `elitrack-logistics` root folder, run both servers simultaneously:
 
 ```bash
 npm run dev
@@ -145,7 +145,7 @@ Your browser will open automatically at `http://localhost:3000`.
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@terralink.zm | admin123 |
+| Admin | admin@elitrack.zm | admin123 |
 | Client | Register a new account | — |
 
 > The admin account is seeded automatically on first server start.
@@ -247,7 +247,7 @@ When ready to deploy:
 app.use(express.static(path.join(__dirname, '../client/build')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/build/index.html')));
 ```
-3. Use a process manager like **PM2**: `pm2 start server/index.js --name terralink`
+3. Use a process manager like **PM2**: `pm2 start server/index.js --name elitrack-logistics`
 4. Point your domain/server to port 5000
 
 ---
@@ -256,4 +256,4 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/build/in
 
 **Founder:** Elijah Mufwambi  
 **Dispatch:** 0973930287  
-**System:** Terralink.fleets © 2026
+**System:** Elitrack Logistics © 2026
