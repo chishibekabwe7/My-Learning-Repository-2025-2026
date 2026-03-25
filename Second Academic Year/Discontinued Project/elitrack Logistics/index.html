@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elitrack | Logistics</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h1 style="color: var(--gold); margin-bottom: 5px; letter-spacing: 3px;">ELITRACK LOGISTICS</h1>
+        <p style="font-size: 10px; color: #888; margin-bottom: 25px; letter-spacing: 1px;">FLEET MULTI-ASSET PORTAL</p>
+        <input type="email" id="userEmail" placeholder="Internal Email">
+        <input type="tel" id="userPhone" placeholder="Authorization Code">
+        <button class="btn-gold" onclick="login()">Access Fleet</button>
+    </div>
+</div>
+
+<div class="app-container" id="app">
+    <header>
+        <h1>Elitrack.fleets</h1>
+        <div class="hotline">CONVOY DISPATCH: 0973930287</div>
+    </header>
+
+    <div class="section">
+        <h3> Asset Selection</h3>
+        <label>Primary Vehicle Type</label>
+        <select id="truck" onchange="calc()">
+            <option value="11500">Volvo FMX Dump Truck (K11,500/day)</option>
+            <option value="15000">Heavy-Duty Low Loader (K15,000/day)</option>
+            <option value="10000">Excavator CAT 320 (K10,000/day)</option>
+            <option value="8000">Bullion Van / Escort Vehicle (K8,000/day)</option>
+        </select>
+
+        <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+                <label>Total Units</label>
+                <input type="number" id="units" value="1" min="1" max="10" oninput="calc()">
+            </div>
+            <div style="flex: 1;">
+                <label>Contract Days</label>
+                <input type="number" id="days" value="1" min="1" oninput="calc()">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Deployment Logistics</h3>
+        <label>Strategic Hub</label>
+        <select id="loc" onchange="calc()">
+            <option value="kitwe">Kitwe Hub (Copperbelt)</option>
+            <option value="ndola">Ndola Industrial</option>
+            <option value="solwezi">Solwezi (Kansanshi/Sentinel)</option>
+            <option value="chingola">Chingola (KCM)</option>
+        </select>
+        <label>Security Tier</label>
+        <select id="sec_tier" onchange="calc()">
+            <option value="0">Standard (GPS Tracking Only)</option>
+            <option value="4500">Silver: 1x Armed Escort (+K4,500)</option>
+            <option value="9000">Gold: 2x Tactical Vehicles (+K9,000)</option>
+            <option value="15000">Diamond: Full Convoy Security (+K15,000)</option>
+        </select>
+    </div>
+
+    <div class="total-display">
+        <p style="margin:0; font-size:10px; opacity:0.7; letter-spacing: 1px;">TOTAL LOGISTICS VALUE</p>
+        <h2 id="total" style="font-size: 32px; margin: 10px 0;">K11,500</h2>
+        <button class="btn-gold" onclick="processBooking()">Deploy Convoy & Link Cams</button>
+    </div>
+
+    <div class="section" id="fleet-list-section" style="display:none;">
+        <h3> Active Convoy Management</h3>
+        <div id="fleet-container"></div>
+    </div>
+
+    <div class="section" id="live-telematics" style="display:none;">
+        <h3> Telematics: <span id="active-asset-id" style="color:#d4af37;">None</span></h3>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 12px;">
+            <span>Network: <b style="color: var(--success);">4G LTE</b></span>
+            <span>Cam: <b style="color: var(--success);">24H Live</b></span>
+            <span>Speed: <b id="live-speed">0 km/h</b></span>
+        </div>
+        <div id="cam-feed">
+            <div class="live-indicator">REC ● LIVE</div>
+            <div id="video-content" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                <p style="color: #666; font-size: 12px;">Initializing Encrypted Link...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="track-section" style="display:none;">
+        <h3> Real-Time GPS Tracking</h3>
+        <div id="map"></div>
+    </div>
+
+    <a href="tel:0973930287" class="sticky-contact"> Call Dispatch Center</a>
+
+    <footer>
+        Elitrack.Logistics &copy; 2026<br>
+        Engineering Premium Logistics for Zambia<br>
+        <b>Elijah Mufwambi, Founder</b>
+    </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./scripts/script.js"></script>
+
+</body>
+</html>
