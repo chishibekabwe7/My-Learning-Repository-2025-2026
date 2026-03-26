@@ -1,3 +1,5 @@
+import { faBox, faChartBar, faHourglassEnd, faMoneyBill, faTruck, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -51,7 +53,7 @@ export default function AdminDashboard() {
     loadTransactions(); loadStats();
   };
 
-  const TABS = [['overview','📊 Overview'],['bookings','📦 Bookings'],['transactions','💰 Transactions'],['users','👥 Users']];
+  const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users']];
 
   return (
     <div style={{ minHeight: '100vh', background: '#1D2429', color: 'white' }}>
@@ -76,7 +78,7 @@ export default function AdminDashboard() {
             fontSize: 12, fontFamily: 'Roboto', fontWeight: 700,
             color: tab === k ? '#30BDEC' : '#444',
             borderBottom: tab === k ? '2px solid #30BDEC' : '2px solid transparent', letterSpacing: 1
-          }}>{v}</button>
+          }}>{k === 'overview' ? <><FontAwesomeIcon icon={faChartBar} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'bookings' ? <><FontAwesomeIcon icon={faBox} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'transactions' ? <><FontAwesomeIcon icon={faMoneyBill} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : <><FontAwesomeIcon icon={faUsers} style={{color: '#30BDEC', marginRight: 8}}/>{v}</>}</button>
         ))}
       </div>
 
@@ -88,14 +90,14 @@ export default function AdminDashboard() {
             {stats ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 32 }}>
                 {[
-                  { label: 'Total Clients', value: stats.total_users, icon: '👥' },
-                  { label: 'Total Bookings', value: stats.total_bookings, icon: '📦' },
-                  { label: 'Active Convoys', value: stats.active_bookings, icon: '🚛' },
-                  { label: 'Revenue (Paid)', value: `K${parseInt(stats.total_revenue).toLocaleString()}`, icon: '💰' },
-                  { label: 'Pending Revenue', value: `K${parseInt(stats.pending_revenue).toLocaleString()}`, icon: '⏳' },
+                  { label: 'Total Clients', value: stats.total_users, icon: faUsers },
+                  { label: 'Total Bookings', value: stats.total_bookings, icon: faBox },
+                  { label: 'Active Convoys', value: stats.active_bookings, icon: faTruck },
+                  { label: 'Revenue (Paid)', value: `K${parseInt(stats.total_revenue).toLocaleString()}`, icon: faMoneyBill },
+                  { label: 'Pending Revenue', value: `K${parseInt(stats.pending_revenue).toLocaleString()}`, icon: faHourglassEnd },
                 ].map(s => (
                   <div className="stat-card" key={s.label}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>{s.icon}</div>
+                    <div style={{ fontSize: 24, marginBottom: 8, color: '#30BDEC' }}><FontAwesomeIcon icon={s.icon} /></div>
                     <div className="stat-value">{s.value}</div>
                     <div className="stat-label">{s.label}</div>
                   </div>

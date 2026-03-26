@@ -1,3 +1,5 @@
+import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,12 +17,12 @@ export default function AuthPage() {
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    console.log('✅ Google Login Success - Token received');
+    console.log('[CHECK] Google Login Success - Token received');
     setError('');
     setLoading(true);
     try {
       // Send the token to your backend
-      console.log('📤 Sending token to backend...');
+      console.log('[SEND] Sending token to backend...');
       const response = await fetch('http://localhost:5000/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,24 +30,24 @@ export default function AuthPage() {
       });
       
       const data = await response.json();
-      console.log('📥 Backend response:', { status: response.status, data });
+      console.log('[RECV] Backend response:', { status: response.status, data });
       
       if (!response.ok) {
         throw new Error(data.error || `Server error: ${response.status}`);
       }
       
       if (!data.token || !data.user) {
-        console.error('❌ Invalid response structure:', data);
+        console.error('[ERROR] Invalid response structure:', data);
         throw new Error('Invalid response from server');
       }
       
       // Store token and redirect using same keys as AuthContext
-      console.log('✅ Token stored, redirecting...');
+      console.log('[CHECK] Token stored, redirecting...');
       localStorage.setItem('tl_token', data.token);
       localStorage.setItem('tl_user', JSON.stringify(data.user));
       navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
-      console.error('❌ Google login error:', err);
+      console.error('[ERROR] Google login error:', err);
       setError(err.message || 'Google login failed. Check browser console for details.');
     } finally {
       setLoading(false);
@@ -53,7 +55,7 @@ export default function AuthPage() {
   };
 
   const handleGoogleError = (error) => {
-    console.error('❌ Google Authentication Error:', error);
+    console.error('[ERROR] Google Authentication Error:', error);
     setError('Google login failed. Please try again.');
   };
 
@@ -69,7 +71,7 @@ export default function AuthPage() {
       } else {
         // For register, just create the account without logging in
         await register(form);
-        setSuccess('✅ Account created successfully! Please log in with your credentials.');
+        setSuccess('Account created successfully! Please log in with your credentials.');
         setForm({ email: '', password: '', phone: '', full_name: '', company: '' });
         setTimeout(() => {
           setMode('login');
@@ -145,8 +147,8 @@ export default function AuthPage() {
                 style={{ background: '#1D2429', borderColor: '#333', color: 'white', fontFamily: 'Roboto' }} />
             </div>
 
-            {success && <p style={{ color: '#4ade80', fontSize: 12, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{success}</p>}
-            {error && <p style={{ color: '#e74c3c', fontSize: 12, marginBottom: 16, textAlign: 'center' }}>{error}</p>}
+            {success && <p style={{ color: '#4ade80', fontSize: 12, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}><FontAwesomeIcon icon={faCircleCheck} style={{ color: '#4ade80', marginRight: 8 }} />{success}</p>}
+            {error && <p style={{ color: '#e74c3c', fontSize: 12, marginBottom: 16, textAlign: 'center' }}><FontAwesomeIcon icon={faCircleXmark} style={{ color: '#e74c3c', marginRight: 8 }} />{error}</p>}
 
             <button type="submit" className="btn btn-gold btn-full" disabled={loading}>
               {loading ? 'Please wait...' : mode === 'login' ? 'Access Fleet Portal' : 'Create Account'}

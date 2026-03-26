@@ -1,3 +1,5 @@
+import { faBroadcastTower, faClipboard, faLocationDot, faRocket, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState } from 'react';
@@ -109,10 +111,10 @@ export default function Dashboard() {
         setSpeed(Math.floor(Math.random() * 20 + 45));
       }, 4000);
 
-      showToast(`✅ Convoy of ${form.units} deployed from ${form.hub.toUpperCase()}`);
+      showToast(`Convoy of ${form.units} deployed from ${form.hub.toUpperCase()}`);
       setTab('track');
     } catch (e) {
-      showToast('❌ ' + (e.response?.data?.error || 'Booking failed'));
+      showToast('Booking failed: ' + (e.response?.data?.error || 'Unknown error'));
     } finally { setSubmitting(false); }
   };
 
@@ -132,11 +134,11 @@ export default function Dashboard() {
 
       {/* Tabs */}
       <div style={{ background: '#1D2429', padding: '0 24px', display: 'flex', gap: 4, fontFamily: 'Roboto' }}>
-        {[['book','🚛 Book Convoy'],['track','📡 Live Tracking'],['bookings','📋 My Bookings']].map(([k,v]) => (
+        {[['book','Book Convoy'],['track','Live Tracking'],['bookings','My Bookings']].map(([k,v]) => (
           <button key={k} onClick={() => setTab(k)} style={{
             padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'Roboto', fontWeight: 700,
             color: tab === k ? '#30BDEC' : '#555', borderBottom: tab === k ? '2px solid #30BDEC' : '2px solid transparent', letterSpacing: 1
-          }}>{v}</button>
+          }}>{k === 'book' ? <><FontAwesomeIcon icon={faTruck} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'track' ? <><FontAwesomeIcon icon={faBroadcastTower} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : <><FontAwesomeIcon icon={faClipboard} style={{color: '#30BDEC', marginRight: 8}}/>{v}</>}</button>
         ))}
       </div>
 
@@ -145,7 +147,7 @@ export default function Dashboard() {
         {tab === 'book' && (
           <div className="fade-up">
             <div className="card" style={{ marginBottom: 16 }}>
-              <div className="section-label">🚛 Asset Selection</div>
+              <div className="section-label"><FontAwesomeIcon icon={faTruck} style={{color: '#30BDEC', marginRight: 8}}/>Asset Selection</div>
               <div className="form-group">
                 <label>Primary Vehicle Type</label>
                 <select value={form.truck} onChange={e => setForm(f => ({...f, truck: e.target.value}))}>
@@ -165,7 +167,7 @@ export default function Dashboard() {
             </div>
 
             <div className="card" style={{ marginBottom: 16 }}>
-              <div className="section-label">📍 Deployment Logistics</div>
+              <div className="section-label"><FontAwesomeIcon icon={faLocationDot} style={{color: '#30BDEC', marginRight: 8}}/>Deployment Logistics</div>
               <div className="form-group">
                 <label>Strategic Hub</label>
                 <select value={form.hub} onChange={e => setForm(f => ({...f, hub: e.target.value}))}>
@@ -184,7 +186,7 @@ export default function Dashboard() {
               <p style={{ color: '#888', fontSize: 10, letterSpacing: 2, marginBottom: 8 }}>TOTAL LOGISTICS VALUE</p>
               <p style={{ color: '#30BDEC', fontSize: 36, fontWeight: 800 }}>K{total.toLocaleString()}</p>
               <button className="btn btn-gold btn-full" style={{ marginTop: 20 }} onClick={deploy} disabled={submitting}>
-                {submitting ? 'Deploying...' : '🚀 Deploy Convoy & Link Cams'}
+                {submitting ? 'Deploying...' : <><FontAwesomeIcon icon={faRocket} style={{color: 'white', marginRight: 8}}/>Deploy Convoy & Link Cams</>}
               </button>
             </div>
           </div>
@@ -195,7 +197,7 @@ export default function Dashboard() {
           <div className="fade-up">
             {!deployed ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#999' }}>
-                <p style={{ fontSize: 40, marginBottom: 12 }}>📡</p>
+                <p style={{ fontSize: 40, marginBottom: 12 }}><FontAwesomeIcon icon={faBroadcastTower} style={{color: '#30BDEC'}}/></p>
                 <p>No active convoy. Book and deploy first.</p>
               </div>
             ) : (
