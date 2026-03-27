@@ -1,15 +1,23 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const { initDB } = require('./config/db');
+const { authRateLimit, adminRateLimit } = require('./middleware/rateLimit');
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required in server/.env');
+}
 
 const app = express();
+app.disable('x-powered-by');
+app.use(helmet());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '200kb' }));
 
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authRateLimit, require('./routes/auth'));
 app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin', adminRateLimit, require('./routes/admin'));
 
 app.get('/', (_, res) => {
   res.json({

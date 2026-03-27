@@ -160,6 +160,21 @@ const initDB = async () => {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS admin_audit_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        admin_user_id INT NOT NULL,
+        action VARCHAR(120) NOT NULL,
+        entity_type VARCHAR(80),
+        entity_id INT,
+        details_json JSON,
+        ip_address VARCHAR(80),
+        user_agent VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_user_id) REFERENCES users(id)
+      )
+    `);
+
     // Seed admin user if not exists
     const bcrypt = require('bcryptjs');
     const hash = await bcrypt.hash('admin123', 10);

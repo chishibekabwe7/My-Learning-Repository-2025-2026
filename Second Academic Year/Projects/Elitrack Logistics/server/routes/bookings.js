@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { pool } = require('../config/db');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 const { sendNotification } = require('../services/notifications');
+const { validateBookingCreate } = require('../middleware/validation');
+const { auditAdminAction } = require('../middleware/audit');
 
 // Generate booking reference
 const genRef = () => 'TL-' + Date.now().toString(36).toUpperCase();
@@ -30,7 +32,7 @@ const getBookingWithUser = async (bookingId) => {
 };
 
 // Create booking (client)
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, validateBookingCreate, async (req, res) => {
   const { truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes } = req.body;
   try {
     const ref = genRef();
@@ -68,7 +70,18 @@ router.get('/all', authMiddleware, adminOnly, async (req, res) => {
 });
 
 // Update booking status (admin)
-router.patch('/:id/status', authMiddleware, adminOnly, async (req, res) => {
+router.patch(
+  '/:id/status',
+  authMiddleware,
+  adminOnly,
+  auditAdminAction('booking_status_updated', (req) => ({
+    entity_type: 'booking',
+    entity_id: Number(req.params.id),
+    status: req.body.status,
+    dispatcher_name: req.body.dispatcher_name || null,
+    eta: req.body.eta || null,
+  })),
+  async (req, res) => {
   const requestedStatus = normalizeStatus(req.body.status);
   const dispatcherName = (req.body.dispatcher_name || '').trim();
   const eta = req.body.eta || null;
@@ -129,8 +142,22 @@ router.patch('/:id/status', authMiddleware, adminOnly, async (req, res) => {
 });
 
 // Update transaction status (admin)
-router.patch('/:id/payment', authMiddleware, adminOnly, async (req, res) => {
+router.patch(
+  '/:id/payment',
+  authMiddleware,
+  adminOnly,
+  auditAdminAction('booking_payment_updated', (req) => ({
+    entity_type: 'booking',
+    entity_id: Number(req.params.id),
+    payment_status: req.body.status,
+    payment_method: req.body.payment_method || null,
+  })),
+  async (req, res) => {
   const { status, payment_method } = req.body;
+  const allowedPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+  if (!allowedPaymentStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid payment status.' });
+  }
   await pool.query(
     'UPDATE transactions SET status = ?, payment_method = ? WHERE booking_id = ?',
     [status, payment_method, req.params.id]

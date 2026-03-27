@@ -47,4 +47,16 @@ router.get('/notifications', authMiddleware, adminOnly, async (req, res) => {
   res.json(rows);
 });
 
+// Admin action audit log
+router.get('/audit-logs', authMiddleware, adminOnly, async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT a.*, u.email AS admin_email, u.full_name AS admin_name
+     FROM admin_audit_logs a
+     JOIN users u ON a.admin_user_id = u.id
+     ORDER BY a.created_at DESC
+     LIMIT 300`
+  );
+  res.json(rows);
+});
+
 module.exports = router;

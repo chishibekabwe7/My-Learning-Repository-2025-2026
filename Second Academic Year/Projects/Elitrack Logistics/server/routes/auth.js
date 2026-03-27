@@ -3,10 +3,24 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { pool } = require('../config/db');
-const SECRET = process.env.JWT_SECRET || 'elitrack_secret_2026';
+const { validateRegister, validateLogin, validateGoogleAuth } = require('../middleware/validation');
+const SECRET = process.env.JWT_SECRET;
+const JWT_ISSUER = process.env.JWT_ISSUER || 'elitrack-api';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'elitrack-client';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '12h';
+
+if (!SECRET) {
+  throw new Error('JWT_SECRET is required in environment variables.');
+}
+
+const signAuthToken = (user) => jwt.sign(
+  { id: user.id, email: user.email, role: user.role },
+  SECRET,
+  { expiresIn: JWT_EXPIRES_IN, issuer: JWT_ISSUER, audience: JWT_AUDIENCE }
+);
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', validateRegister, async (req, res) => {
   const { email, phone, password, full_name, company } = req.body;
   if (!email || !phone || !password) return res.status(400).json({ error: 'Missing fields' });
   try {
@@ -23,7 +37,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', validateLogin, async (req, res) => {
   const { email, password } = req.body;
   try {
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -31,7 +45,7 @@ router.post('/login', async (req, res) => {
     const user = rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
+    const token = signAuthToken(user);
     res.json({ token, user: { id: user.id, email: user.email, role: user.role, full_name: user.full_name, company: user.company } });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -39,42 +53,38 @@ router.post('/login', async (req, res) => {
 });
 
 // Google OAuth
-router.post('/google', async (req, res) => {
+router.post('/google', validateGoogleAuth, async (req, res) => {
   const { token } = req.body;
-  console.log('🔐 Google OAuth request received');
   try {
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ error: 'GOOGLE_CLIENT_ID is not configured.' });
+    }
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    console.log('📋 Verifying token with Google...');
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
     });
     const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
-    console.log('✅ Token verified. Email:', email);
+    const { email, name } = payload;
 
     // Check if user exists, create if not
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     let user;
 
     if (rows.length === 0) {
-      console.log('📝 Creating new user...');
       const [result] = await pool.query(
         'INSERT INTO users (email, full_name, phone, password_hash) VALUES (?,?,?,?)',
         [email, name || '', 'N/A', await bcrypt.hash('oauth_user', 10)]
       );
       user = { id: result.insertId, email, full_name: name, role: 'client' };
-      console.log('✅ New user created:', user.id);
     } else {
       user = rows[0];
-      console.log('✅ Existing user found:', user.id);
     }
 
-    const jwtToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '7d' });
-    console.log('🎫 JWT token generated');
+    const jwtToken = signAuthToken(user);
     res.json({ token: jwtToken, user: { id: user.id, email: user.email, role: user.role, full_name: user.full_name, company: user.company } });
   } catch (err) {
-    console.error('❌ Google Auth Error:', err.message);
+    console.error('Google auth error:', err.message);
     res.status(401).json({ error: 'Google authentication failed: ' + err.message });
   }
 });
