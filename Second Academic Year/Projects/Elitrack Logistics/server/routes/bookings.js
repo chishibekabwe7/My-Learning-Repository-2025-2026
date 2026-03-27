@@ -1,9 +1,33 @@
 const router = require('express').Router();
 const { pool } = require('../config/db');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
+const { sendNotification } = require('../services/notifications');
 
 // Generate booking reference
 const genRef = () => 'TL-' + Date.now().toString(36).toUpperCase();
+const WORKFLOW_STATUSES = ['pending_review', 'approved', 'dispatched', 'in_transit', 'completed'];
+const LEGACY_MAP = { pending: 'pending_review', active: 'in_transit' };
+const ALLOWED_TRANSITIONS = {
+  pending_review: ['approved'],
+  approved: ['dispatched'],
+  dispatched: ['in_transit'],
+  in_transit: ['completed'],
+  completed: [],
+};
+
+const normalizeStatus = (status) => LEGACY_MAP[status] || status;
+
+const getBookingWithUser = async (bookingId) => {
+  const [rows] = await pool.query(
+    `SELECT b.*, u.email, u.phone, u.full_name
+     FROM bookings b
+     JOIN users u ON b.user_id = u.id
+     WHERE b.id = ?
+     LIMIT 1`,
+    [bookingId]
+  );
+  return rows[0] || null;
+};
 
 // Create booking (client)
 router.post('/', authMiddleware, async (req, res) => {
@@ -11,9 +35,9 @@ router.post('/', authMiddleware, async (req, res) => {
   try {
     const ref = genRef();
     const [result] = await pool.query(
-      `INSERT INTO bookings (user_id, booking_ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-      [req.user.id, ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes || '']
+      `INSERT INTO bookings (user_id, booking_ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes, status)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [req.user.id, ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes || '', 'pending_review']
     );
     // Create pending transaction
     await pool.query(
@@ -45,9 +69,63 @@ router.get('/all', authMiddleware, adminOnly, async (req, res) => {
 
 // Update booking status (admin)
 router.patch('/:id/status', authMiddleware, adminOnly, async (req, res) => {
-  const { status } = req.body;
-  await pool.query('UPDATE bookings SET status = ? WHERE id = ?', [status, req.params.id]);
-  res.json({ success: true });
+  const requestedStatus = normalizeStatus(req.body.status);
+  const dispatcherName = (req.body.dispatcher_name || '').trim();
+  const eta = req.body.eta || null;
+  const statusNotes = (req.body.status_notes || '').trim();
+
+  if (!WORKFLOW_STATUSES.includes(requestedStatus)) {
+    return res.status(400).json({ error: 'Invalid status value.' });
+  }
+
+  if (['dispatched', 'in_transit'].includes(requestedStatus)) {
+    if (!dispatcherName) {
+      return res.status(400).json({ error: 'dispatcher_name is required for dispatched/in_transit status.' });
+    }
+    if (!eta) {
+      return res.status(400).json({ error: 'eta is required for dispatched/in_transit status.' });
+    }
+  }
+
+  const [rows] = await pool.query('SELECT status FROM bookings WHERE id = ? LIMIT 1', [req.params.id]);
+  if (!rows.length) return res.status(404).json({ error: 'Booking not found.' });
+
+  const currentStatus = normalizeStatus(rows[0].status);
+  if (currentStatus !== requestedStatus && !ALLOWED_TRANSITIONS[currentStatus]?.includes(requestedStatus)) {
+    return res.status(400).json({ error: `Invalid transition from ${currentStatus} to ${requestedStatus}.` });
+  }
+
+  await pool.query(
+    'UPDATE bookings SET status = ?, dispatcher_name = ?, eta = ?, status_notes = ? WHERE id = ?',
+    [requestedStatus, dispatcherName || null, eta, statusNotes || null, req.params.id]
+  );
+
+  const bookingRecord = await getBookingWithUser(req.params.id);
+  if (bookingRecord) {
+    await sendNotification({
+      eventType: 'booking_status_update',
+      booking: bookingRecord,
+      user: bookingRecord,
+    });
+
+    if (requestedStatus === 'dispatched') {
+      await sendNotification({
+        eventType: 'dispatch_started',
+        booking: bookingRecord,
+        user: bookingRecord,
+      });
+    }
+
+    if (requestedStatus === 'completed') {
+      await sendNotification({
+        eventType: 'booking_completed',
+        booking: bookingRecord,
+        user: bookingRecord,
+      });
+    }
+  }
+
+  res.json({ success: true, status: requestedStatus });
 });
 
 // Update transaction status (admin)
@@ -57,6 +135,28 @@ router.patch('/:id/payment', authMiddleware, adminOnly, async (req, res) => {
     'UPDATE transactions SET status = ?, payment_method = ? WHERE booking_id = ?',
     [status, payment_method, req.params.id]
   );
+
+  if (status === 'paid') {
+    const bookingRecord = await getBookingWithUser(req.params.id);
+    if (bookingRecord) {
+      const [txRows] = await pool.query(
+        `SELECT amount, payment_method
+         FROM transactions
+         WHERE booking_id = ?
+         ORDER BY id DESC
+         LIMIT 1`,
+        [req.params.id]
+      );
+      const tx = txRows[0] || {};
+      await sendNotification({
+        eventType: 'payment_confirmation',
+        booking: bookingRecord,
+        user: bookingRecord,
+        extra: { amount: tx.amount, payment_method: tx.payment_method },
+      });
+    }
+  }
+
   res.json({ success: true });
 });
 

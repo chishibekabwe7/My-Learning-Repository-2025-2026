@@ -36,6 +36,16 @@ const SEC_TIERS = [
   { value: 15000, label: 'Diamond: Full Convoy Security (+K15,000)' },
 ];
 
+const STATUS_LABELS = {
+  pending_review: 'Pending Review',
+  approved: 'Approved',
+  dispatched: 'Dispatched',
+  in_transit: 'In Transit',
+  completed: 'Completed',
+  pending: 'Pending Review',
+  active: 'In Transit',
+};
+
 function FlyTo({ center }) {
   const map = useMap();
   useEffect(() => { if (center) map.flyTo(center, 13); }, [center, map]);
@@ -56,6 +66,7 @@ export default function Dashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
   const intervalRef = useRef(null);
+  const activeTrackedBooking = bookings.find((b) => ['dispatched', 'in_transit'].includes(b.status));
 
   useEffect(() => {
     const t = parseInt(form.truck) * parseInt(form.units) * parseInt(form.days) + parseInt(form.sec);
@@ -63,7 +74,7 @@ export default function Dashboard() {
   }, [form]);
 
   useEffect(() => {
-    if (tab === 'bookings') loadBookings();
+    if (tab === 'bookings' || tab === 'track') loadBookings();
   }, [tab]);
 
   const loadBookings = async () => {
@@ -204,6 +215,19 @@ export default function Dashboard() {
               <>
                 <div className="card" style={{ marginBottom: 16 }}>
                   <div className="section-label">🛰️ Live Telematics</div>
+                  {activeTrackedBooking && (
+                    <div style={{ marginBottom: 14, background: '#222', border: '1px solid #30BDEC', borderRadius: 10, padding: 10, fontSize: 12 }}>
+                      <div style={{ marginBottom: 6 }}>
+                        <b>Dispatcher:</b> {activeTrackedBooking.dispatcher_name || 'Not assigned yet'}
+                      </div>
+                      <div style={{ marginBottom: 6 }}>
+                        <b>ETA:</b> {activeTrackedBooking.eta ? new Date(activeTrackedBooking.eta).toLocaleString() : 'Not provided yet'}
+                      </div>
+                      <div style={{ color: '#9ca3af' }}>
+                        {activeTrackedBooking.status_notes || 'No status notes yet.'}
+                      </div>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 16 }}>
                     <span>Network: <b style={{ color: '#27ae60' }}>4G LTE</b></span>
                     <span>Cam: <b style={{ color: '#27ae60' }}>24H Live</b></span>
@@ -247,7 +271,7 @@ export default function Dashboard() {
               ) : (
                 <div className="table-wrap">
                   <table>
-                    <thead><tr><th>Ref</th><th>Asset</th><th>Hub</th><th>Total</th><th>Status</th></tr></thead>
+                    <thead><tr><th>Ref</th><th>Asset</th><th>Hub</th><th>Total</th><th>Status</th><th>Dispatcher</th><th>ETA</th><th>Status Notes</th></tr></thead>
                     <tbody>
                       {bookings.map(b => (
                         <tr key={b.id}>
@@ -255,7 +279,16 @@ export default function Dashboard() {
                           <td style={{ fontSize: 12 }}>{b.truck_type}</td>
                           <td style={{ textTransform: 'capitalize', fontSize: 12 }}>{b.hub}</td>
                           <td className="mono" style={{ fontWeight: 700 }}>K{parseInt(b.total_amount).toLocaleString()}</td>
-                          <td><span className={`badge badge-${b.status}`}>{b.status}</span></td>
+                          <td><span className={`badge badge-${b.status}`}>{STATUS_LABELS[b.status] || b.status}</span></td>
+                          <td style={{ fontSize: 11, color: '#9ca3af', maxWidth: 180 }}>
+                            {b.dispatcher_name || '—'}
+                          </td>
+                          <td style={{ fontSize: 11, color: '#9ca3af', maxWidth: 180 }}>
+                            {b.eta ? new Date(b.eta).toLocaleString() : '—'}
+                          </td>
+                          <td style={{ fontSize: 11, color: '#9ca3af', maxWidth: 240 }}>
+                            {b.status_notes || 'No updates from dispatch yet.'}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

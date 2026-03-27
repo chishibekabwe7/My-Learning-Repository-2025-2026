@@ -51,10 +51,16 @@ body {
 .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .badge-pending { background: #4a3d1a; color: #ffd700; }
 .badge-active { background: #1a3a24; color: #4ade80; }
+.badge-pending_review { background: #4a3d1a; color: #ffd700; }
+.badge-approved { background: #1f3b5d; color: #93c5fd; }
+.badge-dispatched { background: #3f2f56; color: #c4b5fd; }
+.badge-in_transit { background: #1a3a24; color: #4ade80; }
 .badge-completed { background: #1a2d4a; color: #60a5fa; }
 .badge-cancelled { background: #4a1f25; color: #f87171; }
 .badge-paid { background: #1a3a24; color: #4ade80; }
 .badge-failed { background: #4a1f25; color: #f87171; }
+.badge-sent { background: #1a3a24; color: #4ade80; }
+.badge-skipped { background: #4a3d1a; color: #ffd700; }
 
 /* Form */
 .form-group { margin-bottom: 18px; }

@@ -1,13 +1,71 @@
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'terralink_db',
   waitForConnections: true,
   connectionLimit: 10,
 });
+
+const applySchemaMigrations = async (conn, dbName) => {
+  await conn.query(`USE ${dbName}`);
+
+  await conn.query(`UPDATE bookings SET status = 'pending_review' WHERE status = 'pending'`);
+  await conn.query(`UPDATE bookings SET status = 'in_transit' WHERE status = 'active'`);
+  await conn.query(`UPDATE bookings SET status = 'completed' WHERE status = 'cancelled'`);
+
+  await conn.query(`
+    ALTER TABLE bookings
+    MODIFY COLUMN status ENUM(
+      'pending_review',
+      'approved',
+      'dispatched',
+      'in_transit',
+      'completed'
+    ) DEFAULT 'pending_review'
+  `);
+
+  const hasColumn = async (columnName) => {
+    const [columns] = await conn.query(
+      `SELECT COLUMN_NAME
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = ?
+         AND TABLE_NAME = 'bookings'
+         AND COLUMN_NAME = ?
+       LIMIT 1`,
+      [dbName, columnName]
+    );
+    return columns.length > 0;
+  };
+
+  if (!(await hasColumn('dispatcher_name'))) {
+    await conn.query('ALTER TABLE bookings ADD COLUMN dispatcher_name VARCHAR(255)');
+  }
+
+  if (!(await hasColumn('eta'))) {
+    await conn.query('ALTER TABLE bookings ADD COLUMN eta DATETIME');
+  }
+
+  if (!(await hasColumn('status_notes'))) {
+    await conn.query('ALTER TABLE bookings ADD COLUMN status_notes TEXT');
+  }
+
+  const [legacyColumns] = await conn.query(
+    `SELECT COLUMN_NAME
+     FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = ?
+       AND TABLE_NAME = 'bookings'
+       AND COLUMN_NAME = 'admin_notes'
+     LIMIT 1`,
+    [dbName]
+  );
+  if (legacyColumns.length) {
+    await conn.query('UPDATE bookings SET status_notes = COALESCE(NULLIF(status_notes, ""), admin_notes)');
+  }
+};
 
 const initDB = async () => {
   const conn = await pool.getConnection();
@@ -42,8 +100,11 @@ const initDB = async () => {
         security_tier VARCHAR(100) NOT NULL,
         security_price INT NOT NULL DEFAULT 0,
         total_amount INT NOT NULL,
-        status ENUM('pending','active','completed','cancelled') DEFAULT 'pending',
+        status ENUM('pending_review','approved','dispatched','in_transit','completed') DEFAULT 'pending_review',
         notes TEXT,
+        dispatcher_name VARCHAR(255),
+        eta DATETIME,
+        status_notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id)
@@ -80,6 +141,25 @@ const initDB = async () => {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS notification_events (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        booking_id INT,
+        user_id INT,
+        channel ENUM('email','sms','whatsapp') NOT NULL,
+        event_type VARCHAR(64) NOT NULL,
+        recipient VARCHAR(255),
+        status ENUM('sent','failed','skipped') NOT NULL,
+        provider VARCHAR(50),
+        message_subject VARCHAR(255),
+        message_text TEXT,
+        error_text TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `);
+
     // Seed admin user if not exists
     const bcrypt = require('bcryptjs');
     const hash = await bcrypt.hash('admin123', 10);
@@ -87,6 +167,8 @@ const initDB = async () => {
       INSERT IGNORE INTO users (email, phone, password_hash, role, full_name, company)
       VALUES ('admin@elitrack.zm', '0973930287', ?, 'admin', 'Elijah Mufwambi', 'Elitrack Logistics')
     `, [hash]);
+
+    await applySchemaMigrations(conn, dbName);
 
     console.log('✅ Database initialized');
   } finally {

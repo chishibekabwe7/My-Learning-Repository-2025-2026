@@ -11,13 +11,43 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState([]);
   const [users, setUsers] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingBookingId, setEditingBookingId] = useState(null);
+  const [editingCurrentStatus, setEditingCurrentStatus] = useState(null);
+  const [workflowError, setWorkflowError] = useState('');
+  const [workflowForm, setWorkflowForm] = useState({
+    status: 'approved',
+    dispatcher_name: '',
+    eta: '',
+    status_notes: '',
+  });
+
+  const STATUS_OPTIONS = ['pending_review', 'approved', 'dispatched', 'in_transit', 'completed'];
+  const NEXT_STATUS_MAP = {
+    pending_review: ['approved'],
+    approved: ['dispatched'],
+    dispatched: ['in_transit'],
+    in_transit: ['completed'],
+    completed: [],
+  };
+  const STATUS_LABELS = {
+    pending_review: 'Pending Review',
+    approved: 'Approved',
+    dispatched: 'Dispatched',
+    in_transit: 'In Transit',
+    completed: 'Completed',
+    pending: 'Pending Review',
+    active: 'In Transit',
+  };
+  const normalizeStatus = (status) => (status === 'pending' ? 'pending_review' : status === 'active' ? 'in_transit' : status);
 
   useEffect(() => { loadStats(); }, []);
   useEffect(() => {
     if (tab === 'bookings') loadBookings();
     if (tab === 'users') loadUsers();
     if (tab === 'transactions') loadTransactions();
+    if (tab === 'notifications') loadNotifications();
   }, [tab]);
 
   const loadStats = async () => {
@@ -43,9 +73,52 @@ export default function AdminDashboard() {
     finally { setLoading(false); }
   };
 
-  const updateBookingStatus = async (id, status) => {
-    await api.patch(`/bookings/${id}/status`, { status });
-    loadBookings(); loadStats();
+  const loadNotifications = async () => {
+    setLoading(true);
+    try { const { data } = await api.get('/admin/notifications'); setNotifications(data); }
+    finally { setLoading(false); }
+  };
+
+  const openWorkflowForm = (booking) => {
+    const currentStatus = normalizeStatus(booking.status);
+    const nextStatuses = NEXT_STATUS_MAP[currentStatus] || [];
+    setEditingBookingId(booking.id);
+    setEditingCurrentStatus(currentStatus);
+    setWorkflowError('');
+    setWorkflowForm({
+      status: nextStatuses[0] || currentStatus,
+      dispatcher_name: booking.dispatcher_name || '',
+      eta: booking.eta ? new Date(booking.eta).toISOString().slice(0, 16) : '',
+      status_notes: booking.status_notes || '',
+    });
+  };
+
+  const updateBookingStatus = async (id) => {
+    setWorkflowError('');
+
+    const needsDispatchDetails = ['dispatched', 'in_transit'].includes(workflowForm.status);
+    if (needsDispatchDetails && !workflowForm.dispatcher_name.trim()) {
+      setWorkflowError('Dispatcher name is required when status is Dispatched or In Transit.');
+      return;
+    }
+    if (needsDispatchDetails && !workflowForm.eta) {
+      setWorkflowError('ETA is required when status is Dispatched or In Transit.');
+      return;
+    }
+
+    try {
+      await api.patch(`/bookings/${id}/status`, {
+        status: workflowForm.status,
+        dispatcher_name: workflowForm.dispatcher_name,
+        eta: workflowForm.eta || null,
+        status_notes: workflowForm.status_notes,
+      });
+      setEditingBookingId(null);
+      setEditingCurrentStatus(null);
+      loadBookings(); loadStats();
+    } catch (error) {
+      setWorkflowError(error?.response?.data?.error || 'Failed to update booking workflow.');
+    }
   };
 
   const updatePayment = async (id, status) => {
@@ -53,7 +126,7 @@ export default function AdminDashboard() {
     loadTransactions(); loadStats();
   };
 
-  const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users']];
+  const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users'],['notifications','Notifications']];
 
   return (
     <div style={{ minHeight: '100vh', background: '#1D2429', color: 'white' }}>
@@ -78,7 +151,7 @@ export default function AdminDashboard() {
             fontSize: 12, fontFamily: 'Roboto', fontWeight: 700,
             color: tab === k ? '#30BDEC' : '#444',
             borderBottom: tab === k ? '2px solid #30BDEC' : '2px solid transparent', letterSpacing: 1
-          }}>{k === 'overview' ? <><FontAwesomeIcon icon={faChartBar} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'bookings' ? <><FontAwesomeIcon icon={faBox} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'transactions' ? <><FontAwesomeIcon icon={faMoneyBill} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : <><FontAwesomeIcon icon={faUsers} style={{color: '#30BDEC', marginRight: 8}}/>{v}</>}</button>
+          }}>{k === 'overview' ? <><FontAwesomeIcon icon={faChartBar} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'bookings' ? <><FontAwesomeIcon icon={faBox} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'transactions' ? <><FontAwesomeIcon icon={faMoneyBill} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : k === 'users' ? <><FontAwesomeIcon icon={faUsers} style={{color: '#30BDEC', marginRight: 8}}/>{v}</> : <><FontAwesomeIcon icon={faTruck} style={{color: '#30BDEC', marginRight: 8}}/>{v}</>}</button>
         ))}
       </div>
 
@@ -125,7 +198,7 @@ export default function AdminDashboard() {
                 <div className="table-wrap">
                   <table style={{ color: '#ddd' }}>
                     <thead>
-                      <tr><th>Ref</th><th>Client</th><th>Asset</th><th>Hub</th><th>Units</th><th>Days</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+                      <tr><th>Ref</th><th>Client</th><th>Asset</th><th>Hub</th><th>Units</th><th>Days</th><th>Total</th><th>Status</th><th>Dispatcher</th><th>ETA</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
                       {bookings.map(b => (
@@ -140,13 +213,11 @@ export default function AdminDashboard() {
                           <td style={{ textAlign: 'center' }}>{b.units}</td>
                           <td style={{ textAlign: 'center' }}>{b.days}</td>
                           <td className="mono" style={{ fontWeight: 700, color: '#30BDEC' }}>K{parseInt(b.total_amount).toLocaleString()}</td>
-                          <td><span className={`badge badge-${b.status}`}>{b.status}</span></td>
+                          <td><span className={`badge badge-${b.status}`}>{STATUS_LABELS[b.status] || b.status}</span></td>
+                          <td style={{ fontSize: 12 }}>{b.dispatcher_name || '—'}</td>
+                          <td style={{ fontSize: 12 }}>{b.eta ? new Date(b.eta).toLocaleString() : '—'}</td>
                           <td>
-                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                              {b.status === 'pending' && <button className="btn btn-success btn-sm" onClick={() => updateBookingStatus(b.id, 'active')}>Activate</button>}
-                              {b.status === 'active' && <button className="btn btn-sm" style={{ background: '#3498db', color: 'white', fontSize: 11 }} onClick={() => updateBookingStatus(b.id, 'completed')}>Complete</button>}
-                              {['pending','active'].includes(b.status) && <button className="btn btn-danger btn-sm" onClick={() => updateBookingStatus(b.id, 'cancelled')}>Cancel</button>}
-                            </div>
+                            <button className="btn btn-success btn-sm" onClick={() => openWorkflowForm(b)}>Update Workflow</button>
                           </td>
                         </tr>
                       ))}
@@ -155,6 +226,80 @@ export default function AdminDashboard() {
                 </div>
                 {bookings.length === 0 && <p style={{ textAlign: 'center', padding: '30px', color: '#555' }}>No bookings yet.</p>}
               </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'bookings' && editingBookingId && (
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="section-label">Update Booking Workflow</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>Next Status</label>
+                <select
+                  value={workflowForm.status}
+                  onChange={(e) => setWorkflowForm((prev) => ({ ...prev, status: e.target.value }))}
+                  disabled={((NEXT_STATUS_MAP[editingCurrentStatus] || []).length === 0)}
+                >
+                  {(NEXT_STATUS_MAP[editingCurrentStatus] || []).map((status) => (
+                    <option key={status} value={status}>{STATUS_LABELS[status]}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>Dispatcher Name</label>
+                <input
+                  value={workflowForm.dispatcher_name}
+                  onChange={(e) => setWorkflowForm((prev) => ({ ...prev, dispatcher_name: e.target.value }))}
+                  placeholder="Dispatcher full name"
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>ETA</label>
+                <input
+                  type="datetime-local"
+                  value={workflowForm.eta}
+                  onChange={(e) => setWorkflowForm((prev) => ({ ...prev, eta: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="form-group" style={{ marginTop: 12 }}>
+              <label>Status Notes</label>
+              <textarea
+                value={workflowForm.status_notes}
+                onChange={(e) => setWorkflowForm((prev) => ({ ...prev, status_notes: e.target.value }))}
+                placeholder="Add booking progress notes..."
+                style={{ minHeight: 90 }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => updateBookingStatus(editingBookingId)}
+                disabled={((NEXT_STATUS_MAP[editingCurrentStatus] || []).length === 0)}
+              >
+                Save Workflow
+              </button>
+              <button
+                className="btn btn-dark btn-sm"
+                onClick={() => {
+                  setEditingBookingId(null);
+                  setEditingCurrentStatus(null);
+                  setWorkflowError('');
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+            {(NEXT_STATUS_MAP[editingCurrentStatus] || []).length === 0 && (
+              <p style={{ marginTop: 10, color: '#9ca3af', fontSize: 12 }}>
+                This booking is already completed. No further workflow transitions are available.
+              </p>
+            )}
+            {workflowError && (
+              <p style={{ marginTop: 10, color: '#f87171', fontSize: 12 }}>
+                {workflowError}
+              </p>
             )}
           </div>
         )}
@@ -220,6 +365,39 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notifications */}
+        {tab === 'notifications' && (
+          <div className="fade-up">
+            <h2 style={{ color: '#30BDEC', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>Notification Audit Log</h2>
+            {loading ? <div className="spinner" /> : (
+              <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
+                <div className="table-wrap">
+                  <table style={{ color: '#ddd' }}>
+                    <thead>
+                      <tr><th>Time</th><th>Booking</th><th>Client</th><th>Channel</th><th>Event</th><th>Status</th><th>Provider</th><th>Error</th></tr>
+                    </thead>
+                    <tbody>
+                      {notifications.map((n) => (
+                        <tr key={n.id} style={{ borderBottom: '1px solid #222' }}>
+                          <td style={{ fontSize: 11, color: '#aaa' }}>{new Date(n.created_at).toLocaleString()}</td>
+                          <td className="mono" style={{ color: '#30BDEC', fontSize: 11 }}>{n.booking_ref || '—'}</td>
+                          <td style={{ fontSize: 12 }}>{n.full_name || n.email || '—'}</td>
+                          <td style={{ fontSize: 11, textTransform: 'uppercase' }}>{n.channel}</td>
+                          <td style={{ fontSize: 11 }}>{n.event_type}</td>
+                          <td><span className={`badge badge-${n.status}`}>{n.status}</span></td>
+                          <td style={{ fontSize: 11 }}>{n.provider || '—'}</td>
+                          <td style={{ fontSize: 11, color: '#f87171', maxWidth: 260 }}>{n.error_text || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {notifications.length === 0 && <p style={{ textAlign: 'center', padding: '30px', color: '#555' }}>No notification events yet.</p>}
               </div>
             )}
           </div>

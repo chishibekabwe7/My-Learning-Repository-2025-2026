@@ -11,15 +11,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/admin', require('./routes/admin'));
 
-app.get('/', (_, res) => {
-  res.json({
-    name: 'Elitrack Logistics API',
-    status: 'running',
-    client_url: 'http://localhost:3000',
-    health_url: '/api/health',
-  });
-});
-
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }));
 
 const PORT = process.env.PORT || 5000;
@@ -29,3 +20,5 @@ initDB().then(() => {
   console.error('DB init failed:', err.message);
   process.exit(1);
 });
+
+
