@@ -34,6 +34,11 @@ const applySchemaMigrations = async (conn, dbName) => {
     ) DEFAULT 'pending_review'
   `);
 
+  await conn.query(`
+    ALTER TABLE bookings
+    MODIFY COLUMN hub VARCHAR(255) NOT NULL
+  `);
+
   const hasColumn = async (columnName) => {
     const [columns] = await conn.query(
       `SELECT COLUMN_NAME
@@ -102,7 +107,7 @@ const initDB = async () => {
         truck_price_per_day INT NOT NULL,
         units INT NOT NULL DEFAULT 1,
         days INT NOT NULL DEFAULT 1,
-        hub VARCHAR(100) NOT NULL,
+        hub VARCHAR(255) NOT NULL,
         security_tier VARCHAR(100) NOT NULL,
         security_price INT NOT NULL DEFAULT 0,
         total_amount INT NOT NULL,

@@ -21,6 +21,7 @@ const HUBS = {
   solwezi: { coords: [-12.1833, 26.4000], label: 'Solwezi (Kansanshi/Sentinel)' },
   chingola: { coords: [-12.5333, 27.8500], label: 'Chingola (KCM)' },
 };
+const OTHER_HUB_VALUE = 'other';
 
 const TRUCKS = [
   { value: 11500, label: 'Volvo FMX Dump Truck', price: 11500 },
@@ -55,7 +56,7 @@ function FlyTo({ center }) {
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [tab, setTab] = useState('book');
-  const [form, setForm] = useState({ truck: 11500, units: 1, days: 1, hub: 'kitwe', sec: 0 });
+  const [form, setForm] = useState({ truck: 11500, units: 1, days: 1, hub: 'kitwe', customHub: '', sec: 0 });
   const [total, setTotal] = useState(11500);
   const [deployed, setDeployed] = useState(false);
   const [positions, setPositions] = useState([]);
@@ -91,22 +92,30 @@ export default function Dashboard() {
   };
 
   const deploy = async () => {
+    const customHub = form.customHub.trim();
+    if (form.hub === OTHER_HUB_VALUE && !customHub) {
+      showToast('Please specify the exact location for manual entry.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const truck = TRUCKS.find(t => t.value === parseInt(form.truck));
       const sec = SEC_TIERS.find(s => s.value === parseInt(form.sec));
+      const selectedHubLabel = form.hub === OTHER_HUB_VALUE ? customHub : (HUBS[form.hub]?.label || form.hub);
       await api.post('/bookings', {
         truck_type: truck.label,
         truck_price_per_day: truck.price,
         units: form.units,
         days: form.days,
         hub: form.hub,
+        manual_location: customHub,
         security_tier: sec.label,
         security_price: sec.value,
         total_amount: total,
       });
 
-      const hub = HUBS[form.hub].coords;
+      const hub = HUBS[form.hub]?.coords || HUBS.kitwe.coords;
       setActiveHub(hub);
       const pos = Array.from({ length: form.units }, (_, i) => ({
         id: `TL-${101 + i}`,
@@ -122,7 +131,7 @@ export default function Dashboard() {
         setSpeed(Math.floor(Math.random() * 20 + 45));
       }, 4000);
 
-      showToast(`Convoy of ${form.units} deployed from ${form.hub.toUpperCase()}`);
+      showToast(`Convoy of ${form.units} deployed from ${selectedHubLabel}`);
       setTab('track');
     } catch (e) {
       showToast('Booking failed: ' + (e.response?.data?.error || 'Unknown error'));
@@ -183,8 +192,20 @@ export default function Dashboard() {
                 <label>Strategic Hub</label>
                 <select value={form.hub} onChange={e => setForm(f => ({...f, hub: e.target.value}))}>
                   {Object.entries(HUBS).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}
+                  <option value={OTHER_HUB_VALUE}>Other / Manual Entry</option>
                 </select>
               </div>
+              {form.hub === OTHER_HUB_VALUE && (
+                <div className="form-group">
+                  <label>Specify Exact Location</label>
+                  <input
+                    type="text"
+                    value={form.customHub}
+                    onChange={e => setForm(f => ({ ...f, customHub: e.target.value }))}
+                    placeholder="e.g., specific mine site or coordinates"
+                  />
+                </div>
+              )}
               <div className="form-group">
                 <label>Security Tier</label>
                 <select value={form.sec} onChange={e => setForm(f => ({...f, sec: e.target.value}))}>
@@ -277,7 +298,7 @@ export default function Dashboard() {
                         <tr key={b.id}>
                           <td className="mono" style={{ color: '#d4af37', fontSize: 11 }}>{b.booking_ref}</td>
                           <td style={{ fontSize: 12 }}>{b.truck_type}</td>
-                          <td style={{ textTransform: 'capitalize', fontSize: 12 }}>{b.hub}</td>
+                           <td style={{ fontSize: 12 }}>{HUBS[b.hub]?.label || b.hub}</td>
                           <td className="mono" style={{ fontWeight: 700 }}>K{parseInt(b.total_amount).toLocaleString()}</td>
                           <td><span className={`badge badge-${b.status}`}>{STATUS_LABELS[b.status] || b.status}</span></td>
                           <td style={{ fontSize: 11, color: '#9ca3af', maxWidth: 180 }}>
