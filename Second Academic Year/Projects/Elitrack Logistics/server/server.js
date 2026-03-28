@@ -54,7 +54,17 @@ const gracefulShutdown = async (signal) => {
   logger.info('Shutdown signal received', { signal });
 
   if (server) {
-    await new Promise((resolve) => server.close(resolve));
+    await new Promise((resolve) => {
+      const shutdownTimer = setTimeout(() => {
+        logger.warn('Forcing process exit after shutdown timeout', { timeout_ms: 10000 });
+        resolve();
+      }, 10000);
+
+      server.close(() => {
+        clearTimeout(shutdownTimer);
+        resolve();
+      });
+    });
   }
 
   try {

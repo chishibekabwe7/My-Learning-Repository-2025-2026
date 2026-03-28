@@ -2,15 +2,20 @@ const logger = require('../utils/logger');
 
 const notFoundHandler = (req, res, next) => {
   const error = new Error(`Route not found: ${req.method} ${req.originalUrl}`);
-  error.status = 400;
+  error.status = 404;
   next(error);
 };
 
 const errorHandler = (err, req, res, _next) => {
-  const status = err.status && err.status >= 400 && err.status < 500 ? 400 : 500;
-  const message = status === 400 ? err.message || 'Bad request' : 'Internal server error';
+  const status = Number.isInteger(err.status) && err.status >= 400 && err.status < 600
+    ? err.status
+    : 500;
+  const isClientError = status >= 400 && status < 500;
+  const message = isClientError
+    ? err.message || 'Bad request'
+    : 'Internal server error';
 
-  if (status === 500) {
+  if (!isClientError) {
     logger.error('Unhandled server error', {
       path: req.originalUrl,
       method: req.method,

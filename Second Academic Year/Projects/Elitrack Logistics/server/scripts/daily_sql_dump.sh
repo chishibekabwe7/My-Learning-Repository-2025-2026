@@ -16,6 +16,10 @@ MYSQL_PWD="$DB_PASSWORD" mysqldump \
   --host="$DB_HOST" \
   --port="$DB_PORT" \
   --user="$DB_USER" \
-  "$DB_NAME" bookings transactions > "$OUTPUT_FILE"
+  "$DB_NAME" bookings transactions > "$OUTPUT_FILE" || {
+    rm -f "$OUTPUT_FILE"
+    echo "Daily SQL dump failed"
+    exit 1
+  }
 
 echo "Daily SQL dump created: $OUTPUT_FILE"
