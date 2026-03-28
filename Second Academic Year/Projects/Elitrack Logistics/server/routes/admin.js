@@ -1,6 +1,11 @@
 const router = require('express').Router();
+const bcrypt = require('bcryptjs');
 const { pool } = require('../config/db');
 const { authMiddleware, adminOnly, authorize } = require('../middleware/auth');
+
+const SALT_ROUNDS = 12;
+
+const isAdmin = [authMiddleware, authorize(['admin', 'super_admin'])];
 
 // Dashboard stats – revenue data; restricted to admin and super_admin only
 router.get('/stats', authMiddleware, authorize(['admin', 'super_admin']), async (req, res) => {
@@ -17,10 +22,76 @@ router.get('/stats', authMiddleware, authorize(['admin', 'super_admin']), async 
 });
 
 // All users – user management; restricted to admin and super_admin only
-router.get('/users', authMiddleware, authorize(['admin', 'super_admin']), async (req, res) => {
+router.get('/users', ...isAdmin, async (req, res) => {
   const [rows] = await pool.query('SELECT id, email, phone, full_name, company, role, created_at FROM users ORDER BY created_at DESC');
   res.json(rows);
 });
+
+// Create a new admin user – only existing admins may call this.
+// Only super_admin can promote directly to super_admin.
+router.post('/create-admin', ...isAdmin, async (req, res) => {
+  const { email, phone, password, full_name, company, role } = req.body;
+
+  if (!email || !phone || !password) {
+    return res.status(400).json({ error: 'email, phone and password are required.' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format.' });
+  }
+  if (String(password).length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  }
+
+  const targetRole = role === 'super_admin' ? 'super_admin' : 'admin';
+
+  // Only super_admin may create another super_admin
+  if (targetRole === 'super_admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({ error: 'Only a super_admin can create another super_admin.' });
+  }
+
+  const [existing] = await pool.query('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
+  if (existing.length > 0) {
+    return res.status(409).json({ error: 'A user with that email already exists.' });
+  }
+
+  const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+  const [result] = await pool.query(
+    `INSERT INTO users (email, phone, password_hash, role, full_name, company) VALUES (?, ?, ?, ?, ?, ?)`,
+    [email, phone, password_hash, targetRole, full_name || null, company || null]
+  );
+
+  res.status(201).json({ message: 'Admin account created.', id: result.insertId, email, role: targetRole });
+});
+
+// Delete (or deactivate) a user – admin and super_admin only.
+// An admin cannot delete another admin or super_admin.
+router.delete('/users/:id', ...isAdmin, async (req, res) => {
+  const targetId = Number(req.params.id);
+  if (!targetId || !Number.isInteger(targetId)) {
+    return res.status(400).json({ error: 'Invalid user id.' });
+  }
+
+  const [rows] = await pool.query('SELECT id, role FROM users WHERE id = ? LIMIT 1', [targetId]);
+  if (!rows.length) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  const targetUser = rows[0];
+
+  // Prevent self-deletion
+  if (targetUser.id === req.user.id) {
+    return res.status(400).json({ error: 'You cannot delete your own account.' });
+  }
+
+  // Regular admins cannot delete other admins or super_admins
+  if (['admin', 'super_admin'].includes(targetUser.role) && req.user.role !== 'super_admin') {
+    return res.status(403).json({ error: 'Only a super_admin can remove another admin account.' });
+  }
+
+  await pool.query('DELETE FROM users WHERE id = ?', [targetId]);
+  res.json({ message: 'User removed successfully.' });
+});
+
 
 // All transactions
 router.get('/transactions', authMiddleware, adminOnly, async (req, res) => {

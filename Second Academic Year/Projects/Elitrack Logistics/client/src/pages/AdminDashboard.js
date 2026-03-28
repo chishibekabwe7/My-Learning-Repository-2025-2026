@@ -23,6 +23,12 @@ export default function AdminDashboard() {
     status_notes: '',
   });
 
+  // Admin creation form state (super_admin only)
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [createAdminForm, setCreateAdminForm] = useState({ email: '', phone: '', password: '', full_name: '', company: '', role: 'admin' });
+  const [createAdminError, setCreateAdminError] = useState('');
+  const [createAdminSuccess, setCreateAdminSuccess] = useState('');
+
   const STATUS_OPTIONS = ['pending_review', 'approved', 'dispatched', 'in_transit', 'completed'];
   const NEXT_STATUS_MAP = {
     pending_review: ['approved'],
@@ -128,6 +134,30 @@ export default function AdminDashboard() {
   const updatePayment = async (id, status) => {
     await api.patch(`/bookings/${id}/payment`, { status, payment_method: 'Manual' });
     loadTransactions(); loadStats();
+  };
+
+  const removeUser = async (u) => {
+    if (!window.confirm(`Are you sure you want to permanently remove user "${u.full_name || u.email}"? This action cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/users/${u.id}`);
+      setUsers((prev) => prev.filter((x) => x.id !== u.id));
+    } catch (err) {
+      alert(err?.response?.data?.error || 'Failed to remove user.');
+    }
+  };
+
+  const submitCreateAdmin = async (e) => {
+    e.preventDefault();
+    setCreateAdminError('');
+    setCreateAdminSuccess('');
+    try {
+      await api.post('/admin/create-admin', createAdminForm);
+      setCreateAdminSuccess(`Admin account created for ${createAdminForm.email}.`);
+      setCreateAdminForm({ email: '', phone: '', password: '', full_name: '', company: '', role: 'admin' });
+      loadUsers();
+    } catch (err) {
+      setCreateAdminError(err?.response?.data?.error || 'Failed to create admin.');
+    }
   };
 
   const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users'],['notifications','Notifications']].filter(([k]) => {
@@ -354,13 +384,67 @@ export default function AdminDashboard() {
         {/* Users */}
         {tab === 'users' && (
           <div className="fade-up">
-            <h2 style={{ color: '#30BDEC', marginBottom: 20, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>Registered Clients</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ color: '#30BDEC', fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto', margin: 0 }}>Registered Users</h2>
+              {user?.role === 'super_admin' && (
+                <button
+                  className="btn btn-gold btn-sm"
+                  onClick={() => { setShowCreateAdmin((v) => !v); setCreateAdminError(''); setCreateAdminSuccess(''); }}
+                >
+                  {showCreateAdmin ? 'Cancel' : '+ Create New Admin'}
+                </button>
+              )}
+            </div>
+
+            {/* Create New Admin form – super_admin only */}
+            {user?.role === 'super_admin' && showCreateAdmin && (
+              <div className="card" style={{ marginBottom: 20 }}>
+                <div className="section-label">Create New Admin Account</div>
+                <form onSubmit={submitCreateAdmin}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Email *</label>
+                      <input type="email" required value={createAdminForm.email} onChange={(e) => setCreateAdminForm((p) => ({ ...p, email: e.target.value }))} placeholder="admin@example.com" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Phone *</label>
+                      <input required value={createAdminForm.phone} onChange={(e) => setCreateAdminForm((p) => ({ ...p, phone: e.target.value }))} placeholder="+260..." />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Password * (min 8 chars)</label>
+                      <input type="password" required value={createAdminForm.password} onChange={(e) => setCreateAdminForm((p) => ({ ...p, password: e.target.value }))} />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Full Name</label>
+                      <input value={createAdminForm.full_name} onChange={(e) => setCreateAdminForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Company</label>
+                      <input value={createAdminForm.company} onChange={(e) => setCreateAdminForm((p) => ({ ...p, company: e.target.value }))} placeholder="Optional" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Role</label>
+                      <select value={createAdminForm.role} onChange={(e) => setCreateAdminForm((p) => ({ ...p, role: e.target.value }))}>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
+                    <button type="submit" className="btn btn-success btn-sm">Create Admin</button>
+                  </div>
+                  {createAdminError && <p style={{ marginTop: 10, color: '#f87171', fontSize: 12 }}>{createAdminError}</p>}
+                  {createAdminSuccess && <p style={{ marginTop: 10, color: '#4ade80', fontSize: 12 }}>{createAdminSuccess}</p>}
+                </form>
+              </div>
+            )}
+
             {loading ? <div className="spinner" /> : (
               <div style={{ background: '#1a1a1a', borderRadius: 12, border: '1px solid #333', overflow: 'hidden' }}>
                 <div className="table-wrap">
                   <table style={{ color: '#ddd' }}>
                     <thead>
-                      <tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Role</th><th>Joined</th></tr>
+                      <tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
                       {users.map(u => (
@@ -369,13 +453,25 @@ export default function AdminDashboard() {
                           <td style={{ fontSize: 12 }}>{u.email}</td>
                           <td className="mono" style={{ fontSize: 11 }}>{u.phone}</td>
                           <td style={{ fontSize: 12 }}>{u.company || '—'}</td>
-                          <td><span style={{ background: u.role === 'admin' ? '#30BDEC' : '#333', color: u.role === 'admin' ? 'white' : '#888', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>{u.role.toUpperCase()}</span></td>
+                          <td><span style={{ background: u.role === 'super_admin' ? '#e67e22' : u.role === 'admin' ? '#30BDEC' : '#333', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>{u.role.toUpperCase()}</span></td>
                           <td style={{ fontSize: 11, color: '#666' }}>{new Date(u.created_at).toLocaleDateString()}</td>
+                          <td>
+                            {u.id !== user?.id && (
+                              <button
+                                className="btn btn-sm"
+                                style={{ background: '#c0392b', color: 'white', fontSize: 11 }}
+                                onClick={() => removeUser(u)}
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+                {users.length === 0 && <p style={{ textAlign: 'center', padding: '30px', color: '#555' }}>No users yet.</p>}
               </div>
             )}
           </div>
