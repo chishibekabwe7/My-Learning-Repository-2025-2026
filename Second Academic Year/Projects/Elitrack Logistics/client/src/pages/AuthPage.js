@@ -156,7 +156,7 @@ export default function AuthPage() {
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#555' }}>
-            Admin: admin@elictrack.zm / admin123
+            &copy; {new Date().getFullYear()} Elitrack Logistics. All rights reserved.
           </p>
         </div>
       </div>
