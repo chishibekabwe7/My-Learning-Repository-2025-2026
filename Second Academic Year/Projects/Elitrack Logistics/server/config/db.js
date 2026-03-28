@@ -191,4 +191,8 @@ const initDB = async () => {
   }
 };
 
-module.exports = { pool, initDB };
+const closeDB = async () => {
+  await pool.end();
+};
+
+module.exports = { pool, initDB, closeDB };
