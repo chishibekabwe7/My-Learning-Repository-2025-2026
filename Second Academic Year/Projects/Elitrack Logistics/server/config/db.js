@@ -13,6 +13,12 @@ const pool = mysql.createPool({
 const applySchemaMigrations = async (conn, dbName) => {
   await conn.query(`USE ${dbName}`);
 
+  // Expand role ENUM to include dispatcher and super_admin
+  await conn.query(`
+    ALTER TABLE users
+    MODIFY COLUMN role ENUM('client','dispatcher','admin','super_admin') DEFAULT 'client'
+  `);
+
   await conn.query(`UPDATE bookings SET status = 'pending_review' WHERE status = 'pending'`);
   await conn.query(`UPDATE bookings SET status = 'in_transit' WHERE status = 'active'`);
   await conn.query(`UPDATE bookings SET status = 'completed' WHERE status = 'cancelled'`);
@@ -80,7 +86,7 @@ const initDB = async () => {
         email VARCHAR(255) UNIQUE NOT NULL,
         phone VARCHAR(50) NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        role ENUM('client','admin') DEFAULT 'client',
+        role ENUM('client','dispatcher','admin','super_admin') DEFAULT 'client',
         full_name VARCHAR(255),
         company VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -186,6 +192,17 @@ const initDB = async () => {
         FOREIGN KEY (user_id) REFERENCES users(id),
         INDEX idx_token (token),
         INDEX idx_user_expires (user_id, expires_at)
+      )
+    `);
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        action VARCHAR(120) NOT NULL,
+        target_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 

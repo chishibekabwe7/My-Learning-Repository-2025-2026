@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { pool } = require('../config/db');
-const { authMiddleware, adminOnly } = require('../middleware/auth');
+const { authMiddleware, adminOnly, authorize } = require('../middleware/auth');
 const { sendNotification } = require('../services/notifications');
 const { validateBookingCreate } = require('../middleware/validation');
 const { auditAdminAction } = require('../middleware/audit');
@@ -60,8 +60,8 @@ router.get('/mine', authMiddleware, async (req, res) => {
   res.json(rows);
 });
 
-// Get all bookings (admin)
-router.get('/all', authMiddleware, adminOnly, async (req, res) => {
+// Get all bookings (admin / super_admin / dispatcher)
+router.get('/all', authMiddleware, authorize(['admin', 'super_admin', 'dispatcher']), async (req, res) => {
   const [rows] = await pool.query(
     `SELECT b.*, u.email, u.full_name, u.company FROM bookings b
      JOIN users u ON b.user_id = u.id ORDER BY b.created_at DESC`
@@ -69,11 +69,12 @@ router.get('/all', authMiddleware, adminOnly, async (req, res) => {
   res.json(rows);
 });
 
-// Update booking status (admin)
+// Update booking status (admin / super_admin / dispatcher)
+// Dispatchers may only advance status to 'in_transit'.
 router.patch(
   '/:id/status',
   authMiddleware,
-  adminOnly,
+  authorize(['admin', 'super_admin', 'dispatcher']),
   auditAdminAction('booking_status_updated', (req) => ({
     entity_type: 'booking',
     entity_id: Number(req.params.id),
@@ -86,6 +87,11 @@ router.patch(
   const dispatcherName = (req.body.dispatcher_name || '').trim();
   const eta = req.body.eta || null;
   const statusNotes = (req.body.status_notes || '').trim();
+
+  // Dispatchers may only set status to 'in_transit'
+  if (req.user.role === 'dispatcher' && requestedStatus !== 'in_transit') {
+    return res.status(403).json({ error: 'Dispatchers may only set status to in_transit.' });
+  }
 
   if (!WORKFLOW_STATUSES.includes(requestedStatus)) {
     return res.status(400).json({ error: 'Invalid status value.' });
@@ -112,6 +118,14 @@ router.patch(
     'UPDATE bookings SET status = ?, dispatcher_name = ?, eta = ?, status_notes = ? WHERE id = ?',
     [requestedStatus, dispatcherName || null, eta, statusNotes || null, req.params.id]
   );
+
+  // Insert simple audit log entry
+  if (req.user?.id) {
+    await pool.query(
+      'INSERT INTO audit_logs (user_id, action, target_id) VALUES (?, ?, ?)',
+      [req.user.id, 'status_change', Number(req.params.id)]
+    ).catch(() => {});
+  }
 
   const bookingRecord = await getBookingWithUser(req.params.id);
   if (bookingRecord) {

@@ -22,12 +22,25 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-const adminOnly = async (req, res, next) => {
-  if (!req.user?.id) return res.status(403).json({ error: 'Admins only' });
-  const [rows] = await pool.query('SELECT role FROM users WHERE id = ? LIMIT 1', [req.user.id]);
-  if (!rows.length || rows[0].role !== 'admin') return res.status(403).json({ error: 'Admins only' });
-  req.user.role = 'admin';
+/**
+ * authorize(roles) – allow access only if req.user.role is in the given list.
+ * Must be used after authMiddleware.
+ */
+const authorize = (roles) => (req, res, next) => {
+  if (!req.user?.role || !roles.includes(req.user.role)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   next();
 };
 
-module.exports = { authMiddleware, adminOnly };
+const adminOnly = async (req, res, next) => {
+  if (!req.user?.id) return res.status(403).json({ error: 'Admins only' });
+  const [rows] = await pool.query('SELECT role FROM users WHERE id = ? LIMIT 1', [req.user.id]);
+  if (!rows.length || !['admin', 'super_admin'].includes(rows[0].role)) {
+    return res.status(403).json({ error: 'Admins only' });
+  }
+  req.user.role = rows[0].role;
+  next();
+};
+
+module.exports = { authMiddleware, adminOnly, authorize };
