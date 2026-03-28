@@ -33,13 +33,16 @@ const getBookingWithUser = async (bookingId) => {
 
 // Create booking (client)
 router.post('/', authMiddleware, validateBookingCreate, async (req, res) => {
-  const { truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes } = req.body;
+  const { truck_type, truck_price_per_day, units, days, hub, manual_location, security_tier, security_price, total_amount, notes } = req.body;
   try {
     const ref = genRef();
+    const normalizedHub = String(hub).toLowerCase() === 'other'
+      ? String(manual_location || '').trim()
+      : hub;
     const [result] = await pool.query(
       `INSERT INTO bookings (user_id, booking_ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes, status)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [req.user.id, ref, truck_type, truck_price_per_day, units, days, hub, security_tier, security_price, total_amount, notes || '', 'pending_review']
+      [req.user.id, ref, truck_type, truck_price_per_day, units, days, normalizedHub, security_tier, security_price, total_amount, notes || '', 'pending_review']
     );
     // Create pending transaction
     await pool.query(

@@ -47,6 +47,15 @@ export default function AdminDashboard() {
     active: 'In Transit',
   };
   const normalizeStatus = (status) => (status === 'pending' ? 'pending_review' : status === 'active' ? 'in_transit' : status);
+  const formatHubLocation = (hub) => {
+    if (!hub) return '—';
+    const lowerHub = String(hub).toLowerCase();
+    if (lowerHub === 'kitwe') return 'Kitwe Hub (Copperbelt)';
+    if (lowerHub === 'ndola') return 'Ndola Industrial';
+    if (lowerHub === 'solwezi') return 'Solwezi (Kansanshi/Sentinel)';
+    if (lowerHub === 'chingola') return 'Chingola (KCM)';
+    return hub;
+  };
 
   useEffect(() => { if (user?.role !== 'dispatcher') loadStats(); }, []);
   useEffect(() => {
@@ -250,7 +259,7 @@ export default function AdminDashboard() {
                             <div style={{ fontSize: 10, color: '#666' }}>{b.email}</div>
                           </td>
                           <td style={{ fontSize: 11 }}>{b.truck_type}</td>
-                          <td style={{ textTransform: 'capitalize', fontSize: 11 }}>{b.hub}</td>
+                          <td style={{ fontSize: 11, maxWidth: 220 }}>{formatHubLocation(b.hub)}</td>
                           <td style={{ textAlign: 'center' }}>{b.units}</td>
                           <td style={{ textAlign: 'center' }}>{b.days}</td>
                           <td className="mono" style={{ fontWeight: 700, color: '#30BDEC' }}>K{parseInt(b.total_amount).toLocaleString()}</td>

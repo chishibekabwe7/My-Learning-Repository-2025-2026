@@ -30,7 +30,7 @@ const validateGoogleAuth = (req, res, next) => {
 
 const validateBookingCreate = (req, res, next) => {
   const {
-    truck_type, truck_price_per_day, units, days, hub,
+    truck_type, truck_price_per_day, units, days, hub, manual_location,
     security_tier, security_price, total_amount,
   } = req.body;
   if (!truck_type || !hub || !security_tier) return res.status(400).json({ error: 'Missing required booking fields.' });
@@ -38,6 +38,9 @@ const validateBookingCreate = (req, res, next) => {
     return res.status(400).json({ error: 'Booking numeric fields must be valid numbers.' });
   }
   if (Number(units) < 1 || Number(days) < 1) return res.status(400).json({ error: 'units and days must be >= 1.' });
+  if (String(hub).toLowerCase() === 'other' && !String(manual_location || '').trim()) {
+    return res.status(400).json({ error: 'manual_location is required when hub is Other.' });
+  }
   next();
 };
 
