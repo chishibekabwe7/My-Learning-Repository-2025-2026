@@ -206,12 +206,12 @@ const initDB = async () => {
       )
     `);
 
-    // Seed admin user if not exists
+    // Seed super admin user if not exists
     const bcrypt = require('bcryptjs');
-    const hash = await bcrypt.hash('admin123', 10);
+    const hash = await bcrypt.hash('@Ch*shibE.7', 10);
     await conn.query(`
       INSERT IGNORE INTO users (email, phone, password_hash, role, full_name, company)
-      VALUES ('admin@elitrack.zm', '0973930287', ?, 'admin', 'Elijah Mufwambi', 'Elitrack Logistics')
+      VALUES ('chishibekabwe7@gmail.com', '0000000000', ?, 'super_admin', 'Chishibe Kabwe', 'Elitrack Logistics')
     `, [hash]);
 
     await applySchemaMigrations(conn, dbName);
