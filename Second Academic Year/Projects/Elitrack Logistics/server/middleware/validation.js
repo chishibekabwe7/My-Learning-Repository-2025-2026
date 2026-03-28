@@ -41,9 +41,42 @@ const validateBookingCreate = (req, res, next) => {
   next();
 };
 
+const validateForgotPassword = (req, res, next) => {
+  const { email } = req.body;
+  if (!email || !isEmail(email)) {
+    return res.status(400).json({ error: 'Valid email address is required.' });
+  }
+  next();
+};
+
+const validateResetPassword = (req, res, next) => {
+  const { token, password, password_confirm } = req.body;
+  if (!token || !password) {
+    return res.status(400).json({ error: 'token and password are required.' });
+  }
+  if (String(password).length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  }
+  if (password !== password_confirm) {
+    return res.status(400).json({ error: 'Passwords do not match.' });
+  }
+  next();
+};
+
+const validateVerifyResetToken = (req, res, next) => {
+  const { token } = req.body;
+  if (!token || String(token).length < 20) {
+    return res.status(400).json({ error: 'Valid reset token is required.' });
+  }
+  next();
+};
+
 module.exports = {
   validateRegister,
   validateLogin,
   validateGoogleAuth,
   validateBookingCreate,
+  validateForgotPassword,
+  validateResetPassword,
+  validateVerifyResetToken,
 };

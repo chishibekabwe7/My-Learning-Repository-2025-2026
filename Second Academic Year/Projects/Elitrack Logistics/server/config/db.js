@@ -175,6 +175,20 @@ const initDB = async () => {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        token VARCHAR(255) NOT NULL UNIQUE,
+        expires_at DATETIME NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        INDEX idx_token (token),
+        INDEX idx_user_expires (user_id, expires_at)
+      )
+    `);
+
     // Seed admin user if not exists
     const bcrypt = require('bcryptjs');
     const hash = await bcrypt.hash('admin123', 10);

@@ -212,4 +212,58 @@ const sendNotification = async ({ eventType, booking, user, extra = {} }) => {
   ]);
 };
 
-module.exports = { sendNotification };
+const sendPasswordResetEmail = async ({ email, resetToken, expiresIn = '1h' }) => {
+  if (!EMAIL_ENABLED) {
+    console.warn('[notifications] Email not enabled. Password reset email not sent.');
+    return false;
+  }
+
+  try {
+    const tx = setupTransporter();
+    if (!tx) throw new Error('SMTP transporter not configured.');
+
+    const resetUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    
+    const htmlContent = `
+      <h2>Password Reset Request</h2>
+      <p>Hello,</p>
+      <p>We received a request to reset your password. Click the link below to proceed:</p>
+      <p><a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
+      <p>Or copy this link: <code>${resetUrl}</code></p>
+      <p>This link expires in ${expiresIn}.</p>
+      <p>If you didn't request this, please ignore this email.</p>
+      <hr />
+      <p><small>Elitrack Logistics</small></p>
+    `;
+
+    const textContent = `
+Password Reset Request
+
+Hello,
+
+We received a request to reset your password. Visit this link to proceed:
+${resetUrl}
+
+This link expires in ${expiresIn}.
+
+If you didn't request this, please ignore this email.
+
+Elitrack Logistics
+    `.trim();
+
+    await tx.sendMail({
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: 'Elitrack Logistics - Password Reset',
+      text: textContent,
+      html: htmlContent,
+    });
+
+    return true;
+  } catch (err) {
+    console.error('[notifications] Password reset email failed:', err.message);
+    return false;
+  }
+};
+
+module.exports = { sendNotification, sendPasswordResetEmail };
