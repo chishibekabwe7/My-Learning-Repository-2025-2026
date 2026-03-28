@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthPage() {
@@ -15,26 +16,22 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const getAuthErrorMessage = (err, fallback = 'An unexpected error occurred. Please try again or contact support if the issue persists.') => {
+    if (err?.response?.data?.error) return err.response.data.error;
+    if (err?.code === 'ERR_NETWORK' || (err?.request && !err?.response)) {
+      return 'Unable to connect to the server. Please check your internet connection and try again.';
+    }
+    return err?.message || fallback;
+  };
 
   const handleGoogleSuccess = async (credentialResponse) => {
     console.log('[CHECK] Google Login Success - Token received');
     setError('');
     setLoading(true);
     try {
-      // Send the token to your backend
       console.log('[SEND] Sending token to backend...');
-      const response = await fetch('http://localhost:5000/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      });
-      
-      const data = await response.json();
-      console.log('[RECV] Backend response:', { status: response.status, data });
-      
-      if (!response.ok) {
-        throw new Error(data.error || `Server error: ${response.status}`);
-      }
+      const { data } = await api.post('/auth/google', { token: credentialResponse.credential });
+      console.log('[RECV] Backend response received');
       
       if (!data.token || !data.user) {
         console.error('[ERROR] Invalid response structure:', data);
@@ -48,7 +45,7 @@ export default function AuthPage() {
       navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       console.error('[ERROR] Google login error:', err);
-      setError(err.message || 'Google login failed. Check browser console for details.');
+      setError(getAuthErrorMessage(err, 'Google login failed. Check browser console for details.'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +76,7 @@ export default function AuthPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong');
+      setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
     }
