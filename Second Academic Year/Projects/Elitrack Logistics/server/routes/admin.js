@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const { pool } = require('../config/db');
-const { authMiddleware, adminOnly } = require('../middleware/auth');
+const { authMiddleware, adminOnly, authorize } = require('../middleware/auth');
 
-// Dashboard stats
-router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
+// Dashboard stats – revenue data; restricted to admin and super_admin only
+router.get('/stats', authMiddleware, authorize(['admin', 'super_admin']), async (req, res) => {
   const [[{ total_users }]] = await pool.query('SELECT COUNT(*) AS total_users FROM users WHERE role="client"');
   const [[{ total_bookings }]] = await pool.query('SELECT COUNT(*) AS total_bookings FROM bookings');
   const [[{ active_bookings }]] = await pool.query(
@@ -16,8 +16,8 @@ router.get('/stats', authMiddleware, adminOnly, async (req, res) => {
   res.json({ total_users, total_bookings, active_bookings, total_revenue, pending_revenue });
 });
 
-// All users
-router.get('/users', authMiddleware, adminOnly, async (req, res) => {
+// All users – user management; restricted to admin and super_admin only
+router.get('/users', authMiddleware, authorize(['admin', 'super_admin']), async (req, res) => {
   const [rows] = await pool.query('SELECT id, email, phone, full_name, company, role, created_at FROM users ORDER BY created_at DESC');
   res.json(rows);
 });

@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   };
   const normalizeStatus = (status) => (status === 'pending' ? 'pending_review' : status === 'active' ? 'in_transit' : status);
 
-  useEffect(() => { loadStats(); }, []);
+  useEffect(() => { if (user?.role !== 'dispatcher') loadStats(); }, []);
   useEffect(() => {
     if (tab === 'bookings') loadBookings();
     if (tab === 'users') loadUsers();
@@ -51,8 +51,12 @@ export default function AdminDashboard() {
   }, [tab]);
 
   const loadStats = async () => {
-    const { data } = await api.get('/admin/stats');
-    setStats(data);
+    try {
+      const { data } = await api.get('/admin/stats');
+      setStats(data);
+    } catch {
+      setStats({});
+    }
   };
 
   const loadBookings = async () => {
@@ -126,7 +130,10 @@ export default function AdminDashboard() {
     loadTransactions(); loadStats();
   };
 
-  const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users'],['notifications','Notifications']];
+  const TABS = [['overview','Overview'],['bookings','Bookings'],['transactions','Transactions'],['users','Users'],['notifications','Notifications']].filter(([k]) => {
+    if (user?.role === 'dispatcher' && k === 'users') return false;
+    return true;
+  });
 
   return (
     <div style={{ minHeight: '100vh', background: '#1D2429', color: 'white' }}>
@@ -138,7 +145,7 @@ export default function AdminDashboard() {
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ fontSize: 11, color: '#888' }}>{user?.full_name || user?.email}</span>
-          <span style={{ background: '#30BDEC', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>ADMIN</span>
+          <span style={{ background: '#30BDEC', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 9, fontWeight: 700, fontFamily: 'Roboto' }}>{(user?.role || 'admin').toUpperCase()}</span>
           <button className="btn btn-dark btn-sm" onClick={logout}>Logout</button>
         </div>
       </header>
@@ -160,7 +167,7 @@ export default function AdminDashboard() {
         {tab === 'overview' && (
           <div className="fade-up">
             <h2 style={{ color: '#30BDEC', marginBottom: 24, fontSize: 14, letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Roboto' }}>Dashboard Overview</h2>
-            {stats ? (
+            {user?.role !== 'dispatcher' && (stats ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 32 }}>
                 {[
                   { label: 'Total Clients', value: stats.total_users, icon: faUsers },
@@ -176,14 +183,18 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
-            ) : <div className="spinner" />}
+            ) : <div className="spinner" />)}
 
               <div style={{ background: '#1D2429', borderRadius: 12, border: '1px solid #333', padding: 20, fontFamily: 'Roboto' }}>
               <p className="section-label">Quick Actions</p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <button className="btn btn-gold btn-sm" onClick={() => setTab('bookings')}>Manage Bookings</button>
-                <button className="btn btn-dark btn-sm" onClick={() => setTab('transactions')}>View Transactions</button>
-                <button className="btn btn-dark btn-sm" onClick={() => setTab('users')}>View Clients</button>
+                {user?.role !== 'dispatcher' && (
+                  <>
+                    <button className="btn btn-dark btn-sm" onClick={() => setTab('transactions')}>View Transactions</button>
+                    <button className="btn btn-dark btn-sm" onClick={() => setTab('users')}>View Clients</button>
+                  </>
+                )}
               </div>
             </div>
           </div>
