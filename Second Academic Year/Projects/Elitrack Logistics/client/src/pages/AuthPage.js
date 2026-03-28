@@ -16,10 +16,10 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-  const getErrorMessage = (err, fallback = 'Something went wrong') => {
+  const getAuthErrorMessage = (err, fallback = 'An unexpected error occurred. Please try again or contact support if the issue persists.') => {
     if (err?.response?.data?.error) return err.response.data.error;
-    if (err?.message === 'Network Error' || String(err?.message || '').toLowerCase().includes('failed to fetch')) {
-      return 'Unable to connect to the server. Please try again in a moment.';
+    if (err?.code === 'ERR_NETWORK' || (err?.request && !err?.response)) {
+      return 'Unable to connect to the server. Please check your internet connection and try again.';
     }
     return err?.message || fallback;
   };
@@ -45,7 +45,7 @@ export default function AuthPage() {
       navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       console.error('[ERROR] Google login error:', err);
-      setError(getErrorMessage(err, 'Google login failed. Check browser console for details.'));
+      setError(getAuthErrorMessage(err, 'Google login failed. Check browser console for details.'));
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export default function AuthPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(getErrorMessage(err));
+      setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
     }
