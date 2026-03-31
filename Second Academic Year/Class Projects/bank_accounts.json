@@ -1,0 +1,22 @@
+[
+    {
+        "type": "Account",
+        "name": "Chishibe Kabwe",
+        "account_number": "3243591739413847",
+        "balance": 300.0,
+        "transactions": [
+            "Account created with balance 100.00",
+            "Deposit: +200.00"
+        ]
+    },
+    {
+        "type": "Account",
+        "name": "Morris Phiri",
+        "account_number": "0978621232",
+        "balance": 300.0,
+        "transactions": [
+            "Account created with balance 100.00",
+            "Deposit: +200.00"
+        ]
+    }
+]
