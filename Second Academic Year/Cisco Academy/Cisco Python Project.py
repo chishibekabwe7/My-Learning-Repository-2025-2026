@@ -1,4 +1,6 @@
+#!usr/bin/env python3
 from random import randrange
+
 
 
 def display_board(board):
