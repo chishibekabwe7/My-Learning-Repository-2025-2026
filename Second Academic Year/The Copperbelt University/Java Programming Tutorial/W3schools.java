@@ -24,6 +24,9 @@ public class W3schools {
         // System.out.println("My Name is " + Name2);
 
 
+      //Print Command
+        System.out.print("Hello ");
+        System.out.print("World");
         //Declaring Variables
         String firstName;
         String lastName;
@@ -151,7 +154,7 @@ public class W3schools {
            System.out.println(c);
          }
          
-        j
+        
         //Do While Loop
         /*This loop will always be executed atleast once, even if the condition is false, Because the code
         block is executed before the code is run
