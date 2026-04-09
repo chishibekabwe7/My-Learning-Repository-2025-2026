@@ -1,7 +1,42 @@
 import java.util.Scanner;
 public class AI_Problems {
     public static void main( String [] args){
-       //Count how many times the letter 'l' appears in "Hello World" using a loop.
+       
+        
+ 
+       
+      
+     
+       
+
+
+
+       //Given int[] numbers = {3, 7, 2, 9, 4}, find and print the largest number.
+       int[] numbers = {3, 7, 2, 9, 4};
+       
+       int largest = numbers[0];
+       for(int num:numbers){
+        if(num > largest){
+             largest = num;
+        }
+       }
+       System.out.println("The largest is:" + largest);
+
+    
+
+
+       //Given int[] scores = {85, 90, 78, 92, 88}, print each score.
+       int [] scores = {85, 90, 78, 92, 88};
+       for(int i:scores){
+        System.out.println(i);
+       }
+
+       //Given String[] names = {"Alice", "Bob", "Charlie", "Diana"}, print each name.
+       String [] names = {"Alice", "Bob", "Charlie", "Diana"};
+       for (String My_Names:names){
+        System.out.println(My_Names);
+       }
+
 
        //Print a row of 5 stars: * * * * * using a loop (not manually typing them).
        for(int i = 0; i<5; i++){

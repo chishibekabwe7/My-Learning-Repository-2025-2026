@@ -2,6 +2,62 @@
 import java.util.Scanner;
 public class W3schools {
     public static void main(String[] args){
+        
+        
+
+
+        //Example Two Multiplication Table illustration
+        for(int i = 1; i <=3; i++){
+            for(int j = 1; j <=3; j++){
+             System.out.print(i * j + " ") ;
+            }
+            System.out.println();
+        }
+
+       //Nested Loops
+       //Example One
+       for(int i = 1; i <=2; i++){
+        System.out.println("Outer " + i);
+        for (int j = 1; j<=3; j++){
+            System.out.println("Inner " + j);
+        }
+       }
+
+       //Arrays
+       //Multidimential Arrays
+       int [][] arr = {
+        {1,2,3},
+        {3,4,5}
+       };
+      
+
+       //Create an array then check its size, output its content with both for and enhanced loop
+       String [] Z234 = {"Zanga","Wessels","Otis","Chishibe"};
+       System.out.println(Z234.length);
+       //Output our loop
+       for(String iterater: Z234){
+        System.out.println(iterater);
+       }
+       System.out.print(".....................................................................\n");
+       for(int i = 0; i < Z234.length; i++){
+         System.out.println(Z234[i]);
+       }
+
+       //New Keyword
+       //initialize a new one array using a fixed number
+       String[] K2_162= new String[4];
+       K2_162[0] = "Mumena";
+       K2_162[1] = "Shadreck";
+       K2_162[2] = "Shemaiah";
+       K2_162[3] = "Chishibe";
+
+       for(int i =0; i < K2_162.length; i++){
+        System.out.println(K2_162[i]);
+       }
+       for(String i:K2_162){
+        System.out.println(i);
+       }
+
         //Hello World
         System.out.println("Hello World!");
 
