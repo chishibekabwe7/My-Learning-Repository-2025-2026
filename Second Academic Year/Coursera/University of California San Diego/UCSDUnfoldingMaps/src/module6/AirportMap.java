@@ -6,14 +6,12 @@ import de.fhpotsdam.unfolding.data.ShapeFeature;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
-import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import parsing.ParseFeed;
-import processing.core.PApplet;
 
 
 /** An applet that shows airports (and routes)
@@ -36,14 +34,14 @@ public class AirportMap extends PApplet {
 	
 	public void setup() {
 		// Use JAVA2D in WSL/Linux to avoid JOGL module-access crashes.
-		size(800,600);
+		size(1200,800);
 		
 		// setting up map and default events
 		if (offline) {
-			map = new UnfoldingMap(this, 50, 50, 750, 550, new MBTilesMapProvider(mbTilesString));
+			map = new UnfoldingMap(this, 0, 0, width, height, new MBTilesMapProvider(mbTilesString));
 		}
 		else {
-			map = new UnfoldingMap(this, 50, 50, 750, 550, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 0, 0, width, height, new Google.GoogleMapProvider());
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
