@@ -117,6 +117,7 @@ public class EarthquakeCityMap extends PApplet {
 
 	    // could be used for debugging
 	    printQuakes();
+	    sortAndPrint(20);
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -136,9 +137,16 @@ public class EarthquakeCityMap extends PApplet {
 	}
 	
 	
-	// TODO: Add the method:
-	//   private void sortAndPrint(int numToPrint)
-	// and then call that method from setUp
+	private void sortAndPrint(int numToPrint)
+	{
+		EarthquakeMarker[] earthquakes = quakeMarkers.toArray(new EarthquakeMarker[0]);
+		Arrays.sort(earthquakes);
+
+		int quakesToPrint = Math.min(numToPrint, earthquakes.length);
+		for (int i = 0; i < quakesToPrint; i++) {
+			System.out.println(earthquakes[i]);
+		}
+	}
 	
 	/** Event handler that gets called automatically when the 
 	 * mouse moves.
@@ -206,6 +214,10 @@ public class EarthquakeCityMap extends PApplet {
 		for (Marker marker : cityMarkers) {
 			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
 				lastClicked = (CommonMarker)marker;
+				int nearbyCount = 0;
+				float nearbyMagnitudeSum = 0;
+				EarthquakeMarker mostRecentNearby = null;
+
 				// Hide all the other earthquakes and hide
 				for (Marker mhide : cityMarkers) {
 					if (mhide != lastClicked) {
@@ -214,14 +226,59 @@ public class EarthquakeCityMap extends PApplet {
 				}
 				for (Marker mhide : quakeMarkers) {
 					EarthquakeMarker quakeMarker = (EarthquakeMarker)mhide;
-					if (quakeMarker.getDistanceTo(marker.getLocation()) 
-							> quakeMarker.threatCircle()) {
+					if (quakeMarker.getDistanceTo(marker.getLocation())
+							<= quakeMarker.threatCircle()) {
+						nearbyCount++;
+						nearbyMagnitudeSum += quakeMarker.getMagnitude();
+						if (mostRecentNearby == null || isMoreRecent(quakeMarker, mostRecentNearby)) {
+							mostRecentNearby = quakeMarker;
+						}
+					}
+					else {
 						quakeMarker.setHidden(true);
 					}
 				}
+
+				double averageMagnitude = nearbyCount > 0 ? nearbyMagnitudeSum / nearbyCount : 0.0;
+				String mostRecentTitle = nearbyCount > 0 ? mostRecentNearby.getTitle() : "None";
+				String cityName = marker.getStringProperty("name");
+
+				System.out.println(cityName + " nearby earthquakes: " + nearbyCount);
+				System.out.printf("Average nearby magnitude: %.2f%n", averageMagnitude);
+				System.out.println("Most recent nearby earthquake: " + mostRecentTitle);
 				return;
 			}
 		}		
+	}
+
+	private boolean isMoreRecent(EarthquakeMarker candidate, EarthquakeMarker currentMostRecent)
+	{
+		int candidateRank = getAgeRank(candidate.getStringProperty("age"));
+		int currentRank = getAgeRank(currentMostRecent.getStringProperty("age"));
+
+		if (candidateRank != currentRank) {
+			return candidateRank < currentRank;
+		}
+
+		return candidate.getMagnitude() > currentMostRecent.getMagnitude();
+	}
+
+	private int getAgeRank(String age)
+	{
+		if ("Past Hour".equals(age)) {
+			return 0;
+		}
+		if ("Past Day".equals(age)) {
+			return 1;
+		}
+		if ("Past Week".equals(age)) {
+			return 2;
+		}
+		if ("Past Month".equals(age)) {
+			return 3;
+		}
+
+		return Integer.MAX_VALUE;
 	}
 	
 	// Helper method that will check if an earthquake marker was clicked on
