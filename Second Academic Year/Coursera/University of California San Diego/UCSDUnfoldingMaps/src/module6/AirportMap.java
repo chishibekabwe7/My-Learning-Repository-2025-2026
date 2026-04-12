@@ -6,12 +6,14 @@ import de.fhpotsdam.unfolding.data.ShapeFeature;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
+import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import parsing.ParseFeed;
+import processing.core.PApplet;
 
 
 /** An applet that shows airports (and routes)
@@ -26,8 +28,9 @@ public class AirportMap extends PApplet {
 	
 	UnfoldingMap map;
 	private List<Marker> airportList;
+	private List<ShapeFeature> routes;
 	private List<Marker> routeList;
-	private HashMap<String, List<Marker>> routesBySource;
+	private HashMap<Integer, Location> airportLocations;
 	private CommonMarker lastSelected;
 	private CommonMarker lastClicked;
 	
@@ -49,8 +52,7 @@ public class AirportMap extends PApplet {
 		
 		// list for markers, hashmap for quicker access when matching with routes
 		airportList = new ArrayList<Marker>();
-		HashMap<Integer, Location> airports = new HashMap<Integer, Location>();
-		routesBySource = new HashMap<String, List<Marker>>();
+		airportLocations = new HashMap<Integer, Location>();
 		
 		// create markers from features
 		for(PointFeature feature : features) {
@@ -60,40 +62,19 @@ public class AirportMap extends PApplet {
 			airportList.add(m);
 			
 			// put airport in hashmap with OpenFlights unique id for key
-			airports.put(Integer.parseInt(feature.getId()), feature.getLocation());
+			int airportId = parseAirportId(feature.getId());
+			if (airportId != -1) {
+				airportLocations.put(airportId, feature.getLocation());
+			}
 		
 		}
 		
 		
 		// parse route data
-		List<ShapeFeature> routes = ParseFeed.parseRoutes(this, "data/routes.dat");
+		routes = ParseFeed.parseRoutes(this, "data/routes.dat");
 		routeList = new ArrayList<Marker>();
-		for(ShapeFeature route : routes) {
-			
-			// get source and destination airportIds
-			int source = Integer.parseInt((String)route.getProperty("source"));
-			int dest = Integer.parseInt((String)route.getProperty("destination"));
-			
-			// get locations for airports on route
-			if(airports.containsKey(source) && airports.containsKey(dest)) {
-				route.addLocation(airports.get(source));
-				route.addLocation(airports.get(dest));
 
-				SimpleLinesMarker sl = new SimpleLinesMarker(route.getLocations(), route.getProperties());
-				sl.setColor(color(220, 220, 220));
-				sl.setStrokeWeight(1);
-				sl.setHidden(true);
-				routeList.add(sl);
-
-				String sourceKey = route.getProperty("source").toString();
-				if (!routesBySource.containsKey(sourceKey)) {
-					routesBySource.put(sourceKey, new ArrayList<Marker>());
-				}
-				routesBySource.get(sourceKey).add(sl);
-			}
-		}
 		
-		map.addMarkers(routeList);
 		map.addMarkers(airportList);
 		
 	}
@@ -126,7 +107,7 @@ public class AirportMap extends PApplet {
 	public void mouseClicked()
 	{
 		if (!checkAirportsForClick()) {
-			hideAllRoutes();
+			clearRouteLines();
 			lastClicked = null;
 		}
 	}
@@ -136,14 +117,8 @@ public class AirportMap extends PApplet {
 		for (Marker marker : airportList) {
 			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
 				lastClicked = (CommonMarker) marker;
-				hideAllRoutes();
-
-				List<Marker> routesFromAirport = routesBySource.get(marker.getId());
-				if (routesFromAirport != null) {
-					for (Marker route : routesFromAirport) {
-						route.setHidden(false);
-					}
-				}
+				clearRouteLines();
+				showRoutesFromAirport(marker);
 
 				return true;
 			}
@@ -152,10 +127,77 @@ public class AirportMap extends PApplet {
 		return false;
 	}
 
-	private void hideAllRoutes()
+	private void showRoutesFromAirport(Marker clickedAirport)
 	{
-		for (Marker route : routeList) {
-			route.setHidden(true);
+		int clickedAirportId = parseAirportId(clickedAirport.getId());
+		if (clickedAirportId == -1) {
+			return;
+		}
+
+		Location sourceLocation = clickedAirport.getLocation();
+
+		for (ShapeFeature route : routes) {
+			int sourceId = parseAirportId(route.getProperty("source"));
+			int destinationId = parseAirportId(route.getProperty("destination"));
+
+			if (sourceId != clickedAirportId) {
+				continue;
+			}
+
+			Location destinationLocation = airportLocations.get(destinationId);
+			if (destinationLocation == null) {
+				continue;
+			}
+
+			List<Location> routeSegment = new ArrayList<Location>();
+			routeSegment.add(sourceLocation);
+			routeSegment.add(destinationLocation);
+
+			SimpleLinesMarker routeLine = new SimpleLinesMarker(routeSegment, route.getProperties());
+			routeLine.setColor(color(220, 220, 220));
+			routeLine.setStrokeWeight(1);
+			routeList.add(routeLine);
+		}
+
+		if (!routeList.isEmpty()) {
+			map.addMarkers(routeList);
+		}
+	}
+
+	private void clearRouteLines()
+	{
+		if (routeList.isEmpty()) {
+			return;
+		}
+
+		try {
+			map.getMarkers().removeAll(routeList);
+		}
+		catch (UnsupportedOperationException ex) {
+			for (Marker route : routeList) {
+				route.setHidden(true);
+			}
+		}
+
+		routeList.clear();
+	}
+
+	private int parseAirportId(Object value)
+	{
+		if (value == null) {
+			return -1;
+		}
+
+		String idText = value.toString().replace("\"", "").trim();
+		if (idText.length() == 0) {
+			return -1;
+		}
+
+		try {
+			return Integer.parseInt(idText);
+		}
+		catch (NumberFormatException ex) {
+			return -1;
 		}
 	}
 	

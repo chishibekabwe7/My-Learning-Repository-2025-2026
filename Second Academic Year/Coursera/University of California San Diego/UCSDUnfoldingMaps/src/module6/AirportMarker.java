@@ -29,18 +29,8 @@ public class AirportMarker extends CommonMarker {
 
 	@Override
 	public void showTitle(PGraphics pg, float x, float y) {
-		String name = getStringProperty("name");
-		String city = getStringProperty("city");
-
-		if (name == null) {
-			name = "Unknown Airport";
-		}
-		if (city == null) {
-			city = "Unknown City";
-		}
-
-		name = name.replace("\"", "");
-		city = city.replace("\"", "");
+		String name = getSafeTextProperty("name", "Unknown Airport");
+		String city = getSafeTextProperty("city", "Unknown City");
 
 		pg.pushStyle();
 		pg.rectMode(PConstants.CORNER);
@@ -54,6 +44,21 @@ public class AirportMarker extends CommonMarker {
 		pg.text(name, x + 4, y + 13);
 		pg.text(city, x + 4, y + 27);
 		pg.popStyle();
+	}
+
+	private String getSafeTextProperty(String key, String fallback)
+	{
+		Object value = getProperty(key);
+		if (value == null) {
+			return fallback;
+		}
+
+		String text = value.toString().replace("\"", "").trim();
+		if (text.length() == 0 || "\\N".equals(text)) {
+			return fallback;
+		}
+
+		return text;
 	}
 
 }
