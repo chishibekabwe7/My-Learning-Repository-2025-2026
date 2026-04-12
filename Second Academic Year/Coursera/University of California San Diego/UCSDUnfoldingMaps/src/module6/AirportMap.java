@@ -6,6 +6,7 @@ import de.fhpotsdam.unfolding.data.ShapeFeature;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
+import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import parsing.ParseFeed;
  *
  */
 public class AirportMap extends PApplet {
+	private static final boolean offline = true;
+	private static final String mbTilesString = "data/blankLight-1-3.mbtiles";
 	
 	UnfoldingMap map;
 	private List<Marker> airportList;
@@ -29,15 +32,20 @@ public class AirportMap extends PApplet {
 	private CommonMarker lastClicked;
 	
 	public void setup() {
-		// setting up PAppler
-		size(800,600, OPENGL);
+		// Use JAVA2D in WSL/Linux to avoid JOGL module-access crashes.
+		size(800,600);
 		
 		// setting up map and default events
-		map = new UnfoldingMap(this, 50, 50, 750, 550);
+		if (offline) {
+			map = new UnfoldingMap(this, 50, 50, 750, 550, new MBTilesMapProvider(mbTilesString));
+		}
+		else {
+			map = new UnfoldingMap(this, 50, 50, 750, 550, new Google.GoogleMapProvider());
+		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
 		// get features from airport data
-		List<PointFeature> features = ParseFeed.parseAirports(this, "airports.dat");
+		List<PointFeature> features = ParseFeed.parseAirports(this, "data/airports.dat");
 		
 		// list for markers, hashmap for quicker access when matching with routes
 		airportList = new ArrayList<Marker>();
@@ -58,7 +66,7 @@ public class AirportMap extends PApplet {
 		
 		
 		// parse route data
-		List<ShapeFeature> routes = ParseFeed.parseRoutes(this, "routes.dat");
+		List<ShapeFeature> routes = ParseFeed.parseRoutes(this, "data/routes.dat");
 		routeList = new ArrayList<Marker>();
 		for(ShapeFeature route : routes) {
 			
