@@ -23,6 +23,12 @@ import parsing.ParseFeed;
 public class AirportMap extends PApplet {
 	private static final boolean offline = true;
 	private static final String mbTilesString = "data/blankLight-1-3.mbtiles";
+	private static final int WINDOW_WIDTH = 1200;
+	private static final int WINDOW_HEIGHT = 800;
+	private static final int ROUTE_COLOR_BLUE = 255;
+	private static final int ROUTE_COLOR_GREEN = 120;
+	private static final int ROUTE_COLOR_RED = 0;
+	private static final int ROUTE_STROKE_WEIGHT = 4;
 	
 	UnfoldingMap map;
 	private List<Marker> airportList;
@@ -34,14 +40,14 @@ public class AirportMap extends PApplet {
 	
 	public void setup() {
 		// Use JAVA2D in WSL/Linux to avoid JOGL module-access crashes.
-		size(1200,800);
+		size(WINDOW_WIDTH, WINDOW_HEIGHT);
 		
 		// setting up map and default events
 		if (offline) {
-			map = new UnfoldingMap(this, 0, 0, width, height, new MBTilesMapProvider(mbTilesString));
+			map = new UnfoldingMap(this, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, new MBTilesMapProvider(mbTilesString));
 		}
 		else {
-			map = new UnfoldingMap(this, 0, 0, width, height, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, new Google.GoogleMapProvider());
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -104,29 +110,23 @@ public class AirportMap extends PApplet {
 	@Override
 	public void mouseClicked()
 	{
-		if (!checkAirportsForClick()) {
-			clearRouteLines();
-			lastClicked = null;
-		}
-	}
+		Marker clickedAirport = null;
 
-	private boolean checkAirportsForClick()
-	{
 		for (Marker marker : airportList) {
 			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
-				lastClicked = (CommonMarker) marker;
-				clearRouteLines();
-				showRoutesFromAirport(marker);
-
-				return true;
+				clickedAirport = marker;
+				break;
 			}
 		}
 
-		return false;
-	}
+		clearRouteLines();
 
-	private void showRoutesFromAirport(Marker clickedAirport)
-	{
+		if (clickedAirport == null) {
+			lastClicked = null;
+			return;
+		}
+
+		lastClicked = (CommonMarker) clickedAirport;
 		int clickedAirportId = parseAirportId(clickedAirport.getId());
 		if (clickedAirportId == -1) {
 			return;
@@ -152,8 +152,8 @@ public class AirportMap extends PApplet {
 			routeSegment.add(destinationLocation);
 
 			SimpleLinesMarker routeLine = new SimpleLinesMarker(routeSegment, route.getProperties());
-			routeLine.setColor(color(220, 220, 220));
-			routeLine.setStrokeWeight(1);
+			routeLine.setColor(color(ROUTE_COLOR_RED, ROUTE_COLOR_GREEN, ROUTE_COLOR_BLUE));
+			routeLine.setStrokeWeight(ROUTE_STROKE_WEIGHT);
 			routeList.add(routeLine);
 		}
 
