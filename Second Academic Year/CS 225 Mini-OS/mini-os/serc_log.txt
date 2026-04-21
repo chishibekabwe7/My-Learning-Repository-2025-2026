@@ -6,3 +6,39 @@
 [2026-04-21 03:43:39][INFO] System startup: memory manager initialized.
 [2026-04-21 03:43:39][INFO] System startup: resource manager initialized.
 [2026-04-21 03:43:39][INFO] System action: exit requested by user.
+
+================ LOG SESSION START ================
+[2026-04-21 03:47:27] Logger session initialized.
+===================================================
+[2026-04-21 03:47:27][INFO] System startup: logger initialized.
+[2026-04-21 03:47:27][INFO] System startup: memory manager initialized.
+[2026-04-21 03:47:27][INFO] System startup: resource manager initialized.
+[2026-04-21 03:47:27][INFO] Demo scenario: started automated presentation workflow.
+[2026-04-21 03:47:27][INFO] Demo scenario: memory subsystem reinitialized for clean allocation baseline.
+[2026-04-21 03:47:27][INFO] Demo scenario: created 5 emergency processes with mixed types and priorities.
+[2026-04-21 03:47:27][INFO] Demo scenario: memory allocation succeeded for one process using first_fit.
+[2026-04-21 03:47:27][INFO] Demo scenario: memory allocation succeeded for one process using first_fit.
+[2026-04-21 03:47:27][INFO] Demo scenario: memory allocation succeeded for one process using first_fit.
+[2026-04-21 03:47:27][WARNING] Demo scenario: memory allocation failed for one process using first_fit.
+[2026-04-21 03:47:27][INFO] Demo scenario: memory allocation succeeded for one process using first_fit.
+[2026-04-21 03:47:27][MEMORY] Snapshot begin
+  Block 00 | Start=  0MB | Size= 48MB | [USED:1]
+  Block 01 | Start= 48MB | Size= 16MB | [FREE]
+  Block 02 | Start= 64MB | Size= 64MB | [USED:2]
+  Block 03 | Start=128MB | Size= 32MB | [USED:3]
+  Block 04 | Start=160MB | Size= 24MB | [USED:5]
+  Block 05 | Start=184MB | Size=  8MB | [FREE]
+  Block 06 | Start=192MB | Size= 64MB | [FREE]
+  Block 07 | Start=256MB | Size= 64MB | [FREE]
+  Block 08 | Start=320MB | Size= 64MB | [FREE]
+  Block 09 | Start=384MB | Size= 64MB | [FREE]
+  Block 10 | Start=448MB | Size= 64MB | [FREE]
+  Fragmentation estimate: 24 MB
+[MEMORY] Snapshot end
+[2026-04-21 03:47:27][SCHEDULER] avg_wait=9.80 avg_turnaround=14.80 cpu_util=100.00%
+[2026-04-21 03:47:27][INFO] Demo scenario: ran Priority Scheduling and captured metrics.
+[2026-04-21 03:47:27][INFO] Demo scenario: sent two IPC messages through pipe communication.
+[2026-04-21 03:47:27][INFO] Demo scenario: Banker's algorithm safety check returned SAFE.
+[2026-04-21 03:47:27][INFO] Demo scenario: printing full system log for presentation review.
+[2026-04-21 03:47:27][INFO] System action: completed live demo scenario run.
+[2026-04-21 03:47:27][INFO] System action: exit requested by user.
