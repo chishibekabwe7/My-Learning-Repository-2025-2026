@@ -22,71 +22,44 @@ static const char *resource_names[NUM_RESOURCES] = { // Maps resource indices to
 	"police_cars" // Labels index 3 as police car resource units.
 }; // Closes resource-name mapping array after all four resource classes are labeled.
 
-static void clear_input_buffer(void) { // Clears leftover console input so repeated scanf calls remain reliable.
-	int ch = 0; // Stores one consumed character at a time while draining stdin.
-	while ((ch = getchar()) != '\n' && ch != EOF) { // Continues draining until line end or EOF to prevent prompt-skipping issues.
-	} // Closes drain loop body because character consumption itself is the required side effect.
-} // Ends buffer-clear helper after stdin line cleanup is complete.
-
-static int read_bounded_int(const char *prompt, int minimum, int maximum_value) { // Reads an integer safely and enforces numeric bounds for resource input.
-	int value = 0; // Stores parsed numeric input before validation checks are applied.
-	int scan_status = 0; // Tracks scanf conversion success so invalid text can be handled cleanly.
-	while (1) { // Repeats until valid in-range integer input is provided by the user.
-		printf("%s", prompt); // Prints caller-provided prompt so user knows which field to enter.
-		scan_status = scanf("%d", &value); // Attempts to parse an integer from standard input.
-		if (scan_status != 1) { // Detects non-numeric input so matrix values are never corrupted by bad parsing.
-			printf("Invalid input. Please enter a numeric value.\n"); // Explains parse failure so user can correct the next attempt.
-			clear_input_buffer(); // Removes invalid characters so next scanf starts with clean input.
-			continue; // Restarts prompt loop because no valid integer was captured.
-		} // Closes parse-failure branch after cleanup and retry logic.
-		clear_input_buffer(); // Clears trailing newline so subsequent prompts are not skipped.
-		if (value < minimum || value > maximum_value) { // Enforces allowed bounds so resource data remains realistic and consistent.
-			printf("Please enter a value between %d and %d.\n", minimum, maximum_value); // Reports valid range to guide corrected input.
-			continue; // Retries because out-of-range values violate matrix constraints.
-		} // Closes bounds-check branch after either retry or acceptance.
-		return value; // Returns validated integer so caller can safely store it in resource matrices.
-	} // Closes validation loop after guaranteed return on successful input.
-} // Ends bounded integer reader helper after delivering safe numeric input.
-
-void init_resources(void) { // Initializes available resources and captures allocation/maximum claims for Banker's Algorithm.
-	int process_index = 0; // Iterates through configured processes while collecting matrix values.
-	int resource_index = 0; // Iterates through resource columns for each process row.
-	char prompt[160] = {0}; // Stores formatted prompt text so user input questions include process/resource context.
-	available[0] = 6; // Sets sample available radio channels for emergency communication operations.
-	available[1] = 4; // Sets sample available ambulances for medical dispatch operations.
-	available[2] = 3; // Sets sample available fire trucks for fire-response operations.
-	available[3] = 5; // Sets sample available police cars for law-enforcement response operations.
-	for (process_index = 0; process_index < MAX_PROCESSES; process_index++) { // Clears all matrix rows so reinitialization starts from clean state.
-		for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Clears each resource column for current process row.
-			allocation[process_index][resource_index] = 0; // Resets current allocation so stale ownership data is removed.
-			maximum[process_index][resource_index] = 0; // Resets maximum claims so old demand limits do not persist.
-			need[process_index][resource_index] = 0; // Resets remaining need so it can be recomputed from fresh input.
-		} // Closes inner reset loop after current process row is cleared.
-	} // Closes outer reset loop after all process rows are reset.
-	printf("\nSample Available Resources:\n"); // Prints heading so user sees baseline availability before entering claims.
-	for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Iterates resources to display each available count clearly.
-		printf("  %s = %d\n", resource_names[resource_index], available[resource_index]); // Prints each resource name and available unit count.
-	} // Closes availability display loop after all resources are shown.
-	configured_processes = read_bounded_int("Enter number of processes to configure for Banker (1-20): ", 1, MAX_PROCESSES); // Captures active process count so algorithms only process initialized rows.
-	for (process_index = 0; process_index < configured_processes; process_index++) { // Collects allocation and maximum claims for each configured process.
-		printf("\nConfigure process P%d:\n", process_index); // Prints process header so user input remains organized by process.
-		for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Gathers current allocation values for each resource type.
-			snprintf(prompt, sizeof(prompt), "  Allocation for P%d (%s): ", process_index, resource_names[resource_index]); // Builds contextual prompt string for allocation entry.
-			allocation[process_index][resource_index] = read_bounded_int(prompt, 0, 9999); // Stores non-negative allocation because held resources cannot be negative.
-		} // Closes allocation-input loop after all four resources are captured for this process.
-		for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Gathers maximum claims for each resource type.
-			int minimum_maximum = allocation[process_index][resource_index]; // Sets lower bound so maximum claim cannot be less than currently allocated units.
-			snprintf(prompt, sizeof(prompt), "  Maximum for P%d (%s) [>= %d]: ", process_index, resource_names[resource_index], minimum_maximum); // Builds prompt explaining minimum legal maximum claim.
-			maximum[process_index][resource_index] = read_bounded_int(prompt, minimum_maximum, 9999); // Stores validated maximum so Banker inequalities remain valid.
-		} // Closes maximum-input loop after this process claim vector is complete.
-	} // Closes process-configuration loop after all active process rows are entered.
-	calculate_need(); // Computes need matrix immediately so safety and request checks use current values.
-	if (is_safe_state() == 1) { // Evaluates initial state safety so user receives immediate deadlock-risk feedback.
-		printf("Initial configuration is SAFE under Banker's Algorithm.\n"); // Confirms configuration allows a complete safe execution sequence.
-	} else { // Handles unsafe initial state to warn user before processing further requests.
-		printf("Initial configuration is UNSAFE under Banker's Algorithm.\n"); // Warns that current claims/availability cannot guarantee completion.
-	} // Closes initial safety feedback branch.
-} // Ends initialization after matrix input, need computation, and safety check are complete.
+void init_resources(void) { // Initializes Banker matrices from fixed defaults with no runtime prompts.
+	int process_index = 0; // Iterates process rows while clearing and loading matrix defaults.
+	int resource_index = 0; // Iterates resource columns for each matrix operation.
+	const int default_available[NUM_RESOURCES] = {6, 4, 3, 5}; // Defines available units as radio_channels=6, ambulances=4, fire_trucks=3, police_cars=5.
+	const int default_allocation[5][NUM_RESOURCES] = { // Defines current holdings for P0 through P4 across all four resource types.
+		{1, 1, 0, 0}, // Defines P0 allocation as 1 radio channel, 1 ambulance, 0 fire trucks, and 0 police cars.
+		{0, 1, 1, 0}, // Defines P1 allocation as 0 radio channels, 1 ambulance, 1 fire truck, and 0 police cars.
+		{1, 0, 0, 1}, // Defines P2 allocation as 1 radio channel, 0 ambulances, 0 fire trucks, and 1 police car.
+		{0, 0, 1, 1}, // Defines P3 allocation as 0 radio channels, 0 ambulances, 1 fire truck, and 1 police car.
+		{0, 1, 0, 0} // Defines P4 allocation as 0 radio channels, 1 ambulance, 0 fire trucks, and 0 police cars.
+	}; // Closes hardcoded allocation matrix after all five process rows are declared.
+	const int default_maximum[5][NUM_RESOURCES] = { // Defines maximum future demand for P0 through P4 across all four resource types.
+		{3, 2, 1, 1}, // Defines P0 maximum as 3 radio channels, 2 ambulances, 1 fire truck, and 1 police car.
+		{2, 2, 2, 1}, // Defines P1 maximum as 2 radio channels, 2 ambulances, 2 fire trucks, and 1 police car.
+		{3, 1, 1, 2}, // Defines P2 maximum as 3 radio channels, 1 ambulance, 1 fire truck, and 2 police cars.
+		{1, 1, 2, 2}, // Defines P3 maximum as 1 radio channel, 1 ambulance, 2 fire trucks, and 2 police cars.
+		{2, 3, 1, 1} // Defines P4 maximum as 2 radio channels, 3 ambulances, 1 fire truck, and 1 police car.
+	}; // Closes hardcoded maximum matrix after all five process rows are declared.
+	configured_processes = 5; // Sets exactly five configured processes so rows P0 through P4 are active.
+	for (process_index = 0; process_index < MAX_PROCESSES; process_index++) { // Clears full matrices first so rows beyond P4 remain known zeros.
+		for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Clears each resource cell in the current process row.
+			allocation[process_index][resource_index] = 0; // Resets allocation cell to zero before loading defaults.
+			maximum[process_index][resource_index] = 0; // Resets maximum cell to zero before loading defaults.
+			need[process_index][resource_index] = 0; // Resets need cell to zero before recalculating need values.
+		} // Closes resource-clear loop for the current process row.
+	} // Closes full-matrix clear loop for all possible process rows.
+	for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Loads system-wide available resource units in declared resource order.
+		available[resource_index] = default_available[resource_index]; // Copies one default available value for the current resource type.
+	} // Closes available-vector load loop after all four resource classes are copied.
+	for (process_index = 0; process_index < configured_processes; process_index++) { // Loads allocation and maximum defaults for P0 through P4 only.
+		for (resource_index = 0; resource_index < NUM_RESOURCES; resource_index++) { // Copies one resource column for the current process row.
+			allocation[process_index][resource_index] = default_allocation[process_index][resource_index]; // Copies current held units for this process/resource cell.
+			maximum[process_index][resource_index] = default_maximum[process_index][resource_index]; // Copies peak claim units for this process/resource cell.
+		} // Closes per-process copy loop after all four resource classes are loaded.
+	} // Closes default-matrix load loop after all five process rows are copied.
+	calculate_need(); // Computes need matrix as maximum minus allocation for each loaded process/resource cell.
+	printf("Deadlock module initialized with default resource configuration.\n"); // Prints required one-line startup confirmation for default initialization.
+} // Ends initialization after loading defaults and calculating need with no user input.
 
 void calculate_need(void) { // Recomputes remaining need matrix from maximum and current allocation values.
 	int process_index = 0; // Iterates through configured process rows for matrix computation.

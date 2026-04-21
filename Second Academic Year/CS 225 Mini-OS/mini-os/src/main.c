@@ -57,7 +57,7 @@ static void log_critical(const char *message) { // Provides concise wrapper so c
 	log_event(LOG_CRITICAL, (char *)message); // Calls log_event to record high-severity audit entry for dangerous conditions.
 } // Ends critical-log helper after dispatching log request.
 
-static void run_demo_scenario(void) { // Runs a scripted end-to-end scenario to showcase core mini-os subsystems in presentations.
+static void run_demo_scenario(void) { 
 	int index = 0; // Iterates process slots so demo can reset and populate deterministic process data.
 	int block_id = -1; // Stores memory allocation result for each demo process so success/failure is visible.
 	ScheduleResult demo_result = {0.0f, 0.0f, 0.0f}; // Stores priority scheduling metrics produced during demo execution.
