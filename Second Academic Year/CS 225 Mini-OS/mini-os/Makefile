@@ -6,7 +6,9 @@
 #  */
 
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -fcommon
+LDFLAGS = -lrt
+TARGET = mini-os
 SRC_DIR = src
 
 SOURCES = \
@@ -20,12 +22,15 @@ SOURCES = \
 
 OBJECTS = $(SOURCES:.c=.o)
 
-all: $(OBJECTS)
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(TARGET)
 
 .PHONY: all clean
