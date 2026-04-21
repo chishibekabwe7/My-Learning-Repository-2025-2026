@@ -1,8 +1,8 @@
 /*
  * Filename: memory.c
  * Purpose: Implements memory-map initialization, allocation strategies, release logic, visualization, and fragmentation metrics.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // We include stdio so this module can print allocator status and memory-map visual output.
 #include "../include/memory.h" // We include memory declarations so function definitions match the public API contract.

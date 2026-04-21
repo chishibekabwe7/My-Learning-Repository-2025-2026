@@ -1,8 +1,8 @@
 /*
  * Filename: memory.h
  * Purpose: Defines memory block metadata, global memory map storage, and allocation API contracts.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef MEMORY_H // Starts the include guard so this header is parsed once per compilation unit.
 #define MEMORY_H // Defines the include-guard token that prevents duplicate declarations.

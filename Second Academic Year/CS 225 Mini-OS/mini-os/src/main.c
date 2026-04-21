@@ -1,8 +1,8 @@
 /*
  * Filename: main.c
  * Purpose: Entry point and menu flow for the mini-os Smart Emergency Response Center simulation.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <ctype.h> // Provides tolower so menu sub-options can be normalized for easier user input handling.
 #include <stdio.h> // Provides printf, fgets, and sscanf for console menu rendering and input parsing.

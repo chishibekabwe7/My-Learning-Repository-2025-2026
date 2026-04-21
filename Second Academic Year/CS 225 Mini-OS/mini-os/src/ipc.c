@@ -1,8 +1,8 @@
 /*
  * Filename: ipc.c
  * Purpose: Implements POSIX pipe and message-queue IPC operations for Smart Emergency Response Center simulation.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // Provides printf and perror so IPC operations can report results and system-call failures.
 #include <string.h> // Provides strlen and memset so message lengths and queue attributes can be prepared safely.

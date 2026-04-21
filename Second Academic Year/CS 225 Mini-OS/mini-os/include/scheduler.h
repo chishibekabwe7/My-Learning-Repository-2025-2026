@@ -1,8 +1,8 @@
 /*
  * Filename: scheduler.h
  * Purpose: Defines scheduler algorithms, result metrics, and scheduler function prototypes.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef SCHEDULER_H // Starts the include guard so this header is compiled only once per translation unit.
 #define SCHEDULER_H // Defines the include-guard token to prevent duplicate declarations.

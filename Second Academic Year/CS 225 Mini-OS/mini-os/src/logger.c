@@ -1,8 +1,8 @@
 /*
  * Filename: logger.c
  * Purpose: Implements timestamped file logging for events, scheduling metrics, and memory-state snapshots.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // Provides fopen, fclose, fprintf, fgets, and printf for file and console I/O operations.
 #include <time.h> // Provides time structures and functions needed for timestamp generation in log records.

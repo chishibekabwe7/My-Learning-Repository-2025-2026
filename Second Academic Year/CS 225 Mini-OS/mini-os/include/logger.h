@@ -1,8 +1,8 @@
 /*
  * Filename: logger.h
  * Purpose: Declares file-based logging levels and logging APIs for the Smart Emergency Response Center simulation.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef LOGGER_H // Starts include guard so logger declarations are processed only once per translation unit.
 #define LOGGER_H // Defines include-guard token to prevent duplicate declaration errors.

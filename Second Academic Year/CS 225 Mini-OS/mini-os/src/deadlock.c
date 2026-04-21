@@ -1,8 +1,8 @@
 /*
  * Filename: deadlock.c
  * Purpose: Implements Banker's Algorithm deadlock avoidance and basic deadlock detection utilities.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // Provides printf, scanf, and snprintf for user prompts and resource-table output.
 #include <string.h> // Provides memset-style semantics support if future matrix-reset helpers are expanded.

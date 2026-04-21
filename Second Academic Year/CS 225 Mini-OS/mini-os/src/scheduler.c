@@ -1,8 +1,8 @@
 /*
  * Filename: scheduler.c
  * Purpose: Implements FCFS and SJF scheduling simulations and returns aggregate scheduling metrics.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // We include stdio so the scheduler can print Gantt charts and status messages.
 #include "../include/scheduler.h" // We include scheduler declarations so definitions match declared return types.

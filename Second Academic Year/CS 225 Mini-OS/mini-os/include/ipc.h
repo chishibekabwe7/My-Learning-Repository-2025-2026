@@ -1,8 +1,8 @@
 /*
  * Filename: ipc.h
  * Purpose: Declares POSIX pipe and message-queue APIs for emergency center IPC simulation.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef IPC_H // Starts the include guard so declarations are only processed once per translation unit.
 #define IPC_H // Defines the include-guard symbol that blocks duplicate prototype declarations.

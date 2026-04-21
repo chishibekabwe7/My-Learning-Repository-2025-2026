@@ -1,8 +1,8 @@
 /*
  * Filename: process.h
  * Purpose: Defines process management types, process table storage, and function prototypes.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef PROCESS_H // Starts the include guard to prevent duplicate header inclusion.
 #define PROCESS_H // Defines the include guard symbol for this header.

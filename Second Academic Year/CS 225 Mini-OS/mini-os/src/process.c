@@ -1,8 +1,8 @@
 /*
  * Filename: process.c
  * Purpose: Implements process lifecycle operations for the mini-os emergency response simulation.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #include <stdio.h> // We include stdio so the module can prompt users and print process-table output.
 #include <string.h> // We include string helpers so we can safely set a fallback task name when needed.

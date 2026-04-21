@@ -1,8 +1,8 @@
 /*
  * Filename: deadlock.h
  * Purpose: Declares Banker's Algorithm resource matrices and deadlock-avoidance function contracts.
- * Author: [Author Name]
- * Date: 2026-04-21
+ * Author: 
+ * Date: 2026-04-
  */
 #ifndef DEADLOCK_H // Starts include guard so deadlock declarations are processed only once per translation unit.
 #define DEADLOCK_H // Defines include-guard token to prevent duplicate symbol declarations.

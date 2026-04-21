@@ -1,8 +1,8 @@
 # /*
 #  * Filename: Makefile
 #  * Purpose: Builds and runs the mini-os executable with convenience targets for cleaning and execution.
-#  * Author: [Author Name]
-#  * Date: 2026-04-21
+#  * Author: 
+#  * Date: 2026-04-
 #  */
 
 CC = gcc
