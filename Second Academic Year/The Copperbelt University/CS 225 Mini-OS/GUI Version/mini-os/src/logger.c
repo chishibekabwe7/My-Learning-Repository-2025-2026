@@ -11,11 +11,11 @@
 
 static const char *level_to_string(LogLevel level) { // Converts enum log levels into readable labels for consistent file output.
 	switch (level) { // Switches by level because each severity enum maps to a fixed output string.
-		case LOG_INFO: // Handles informational events that describe normal operational flow.
+		case SERC_LOG_INFO: // Handles informational events that describe normal operational flow.
 			return "INFO"; // Returns INFO label so routine messages are clearly identified in the log.
-		case LOG_WARNING: // Handles warning events that indicate degraded conditions needing attention.
+		case SERC_LOG_WARNING: // Handles warning events that indicate degraded conditions needing attention.
 			return "WARNING"; // Returns WARNING label so potential risk messages stand out to operators.
-		case LOG_CRITICAL: // Handles critical events that may impact safety or emergency response readiness.
+		case SERC_LOG_CRITICAL: // Handles critical events that may impact safety or emergency response readiness.
 			return "CRITICAL"; // Returns CRITICAL label so high-severity incidents are immediately visible.
 		default: // Handles unexpected enum values to keep logger robust against invalid inputs.
 			return "UNKNOWN"; // Returns UNKNOWN label so malformed severity values remain diagnosable.

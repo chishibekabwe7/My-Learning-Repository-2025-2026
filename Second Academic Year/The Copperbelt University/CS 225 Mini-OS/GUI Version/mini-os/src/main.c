@@ -7,6 +7,7 @@
 #include <ctype.h> // Provides tolower so menu sub-options can be normalized for easier user input handling.
 #include <stdio.h> // Provides printf, fgets, and sscanf for console menu rendering and input parsing.
 #include <string.h> // Provides strcmp-safe style utilities if future menu parsing expands.
+#include "../include/gui.h" // Provides the Raylib dashboard entry point so the GUI can launch from the existing menu.
 #include "../include/process.h" // Provides process management APIs for task creation, viewing, and termination.
 #include "../include/scheduler.h" // Provides scheduling APIs and ScheduleResult type for CPU scheduling operations.
 #include "../include/memory.h" // Provides memory management APIs for allocation, freeing, and map display.
@@ -46,15 +47,15 @@ static int read_char_value(const char *prompt, char *out_value) { // Reads one c
 } // Ends character-input helper after output is populated.
 
 static void log_info(const char *message) { // Provides concise wrapper so normal operational events are logged consistently.
-	log_event(LOG_INFO, (char *)message); // Calls log_event to record informational audit entry for completed action.
+	log_event(SERC_LOG_INFO, (char *)message); // Calls log_event to record informational audit entry for completed action.
 } // Ends info-log helper after dispatching log request.
 
 static void log_warning(const char *message) { // Provides concise wrapper so warning situations are logged consistently.
-	log_event(LOG_WARNING, (char *)message); // Calls log_event to record warning audit entry for invalid/denied actions.
+	log_event(SERC_LOG_WARNING, (char *)message); // Calls log_event to record warning audit entry for invalid/denied actions.
 } // Ends warning-log helper after dispatching log request.
 
 static void log_critical(const char *message) { // Provides concise wrapper so critical situations are logged consistently.
-	log_event(LOG_CRITICAL, (char *)message); // Calls log_event to record high-severity audit entry for dangerous conditions.
+	log_event(SERC_LOG_CRITICAL, (char *)message); // Calls log_event to record high-severity audit entry for dangerous conditions.
 } // Ends critical-log helper after dispatching log request.
 
 static void run_demo_scenario(void) { 
@@ -217,9 +218,10 @@ int main(void) { // Defines program entry point that runs the interactive SERC M
 		printf("   6a. View system log\n"); // Prints required 6a option label.
 		printf("   6b. Clear log\n"); // Prints required 6b option label.
 		printf("7. Run Live Demo Scenario\n"); // Prints top-level section 7 so presenters can execute full scripted walkthrough quickly.
+		printf("8. Launch GUI Dashboard\n"); // Prints the dashboard option so the Raylib interface is discoverable from the CLI.
 		printf("0. Exit\n"); // Prints required exit option label.
-		if (read_int_value("Select main option (0-7): ", &main_choice) == 0) { // Validates top-level numeric selection input.
-			printf("Invalid main option input. Please enter a number from 0 to 7.\n"); // Explains parse error so user can correct input.
+		if (read_int_value("Select main option (0-8): ", &main_choice) == 0) { // Validates top-level numeric selection input.
+			printf("Invalid main option input. Please enter a number from 0 to 8.\n"); // Explains parse error so user can correct input.
 			log_warning("Invalid main menu input provided."); // Logs invalid input because menu misuse is operationally relevant.
 			continue; // Restarts menu loop because no valid top-level action can be executed.
 		} // Closes main-option parse branch.
@@ -481,12 +483,16 @@ int main(void) { // Defines program entry point that runs the interactive SERC M
 				run_demo_scenario(); // Calls scripted demo function to showcase integrated subsystem behavior end-to-end.
 				log_info("System action: completed live demo scenario run."); // Logs full demo completion as major presentation event.
 				break; // Ends top-level case 7 handling.
+			case 8: // Handles Raylib dashboard launch from the existing console interface.
+				run_gui(); // Opens the SERC Mini-OS dashboard so the user can inspect the system visually.
+				log_info("GUI action: launched Raylib dashboard."); // Logs GUI launch so the session history includes the visual interface transition.
+				break; // Ends top-level case 8 handling.
 			case 0: // Handles explicit exit request.
 				log_info("System action: exit requested by user."); // Logs user exit action before terminating loop.
 				printf("Exiting SERC Mini-OS. Stay safe.\n"); // Prints friendly exit message for operator.
 				break; // Ends top-level case 0 handling.
 			default: // Handles unsupported top-level numeric options.
-				printf("Invalid main option. Please choose 0-7.\n"); // Informs user that entered top-level option is out of range.
+				printf("Invalid main option. Please choose 0-8.\n"); // Informs user that entered top-level option is out of range.
 				log_warning("Invalid main menu option selected."); // Logs invalid top-level option usage.
 				break; // Ends invalid-main-option handling.
 		} // Closes top-level menu switch.

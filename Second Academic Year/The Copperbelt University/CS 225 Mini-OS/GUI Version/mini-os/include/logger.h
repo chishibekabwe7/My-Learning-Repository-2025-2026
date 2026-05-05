@@ -12,9 +12,9 @@
 #define LOG_FILE "serc_log.txt" // Defines the log filename used to persist all emergency-center audit entries.
 
 typedef enum { // Declares severity levels so each log entry is tagged by operational criticality.
-	LOG_INFO, // Represents routine informational events that describe normal system behavior.
-	LOG_WARNING, // Represents warning events that indicate potential issues requiring operator attention.
-	LOG_CRITICAL // Represents critical events that may impact safety, dispatch continuity, or incident response.
+	SERC_LOG_INFO, // Represents routine informational events that describe normal system behavior.
+	SERC_LOG_WARNING, // Represents warning events that indicate potential issues requiring operator attention.
+	SERC_LOG_CRITICAL // Represents critical events that may impact safety, dispatch continuity, or incident response.
 } LogLevel; // Names this severity enumeration as LogLevel for logger API use.
 
 void init_log(void); // Declares logger initialization that appends a new session header with timestamp.

@@ -7,7 +7,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -g -fcommon
-LDFLAGS = -lrt -lpthread
+LDFLAGS = -lraylib -lX11 -lXext -lXfixes -lXrender -lXrandr -lXi -lXinerama -lXcursor -lGL -lwayland-client -lwayland-cursor -lwayland-egl -lasound -lm -lpthread -ldl -lrt
 TARGET = mini-os
 SRC_DIR = src
 
@@ -18,7 +18,7 @@ OBJECTS = $(SOURCES:.c=.o)
 # Builds all C source files into object files and links them into the mini-os executable.
 all: $(TARGET)
 
-# Links all compiled object files into the final mini-os binary with POSIX IPC libraries.
+# Links all compiled object files into the final mini-os binary with POSIX IPC and Raylib libraries.
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
 
